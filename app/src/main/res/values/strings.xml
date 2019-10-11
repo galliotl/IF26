@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Bardcamp</string>
+
+    <!-- BOTTOM MENU -->
+    <string name="bottom_menu_left">Feed</string>
+    <string name="bottom_menu_central">Music</string>
+    <string name="bottom_menu_right">Account</string>
+</resources>

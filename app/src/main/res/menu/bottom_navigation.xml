@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_feed"
+        app:showAsAction="ifRoom"
+        android:title="@string/bottom_menu_left"
+        android:icon="@drawable/home_24dp" />
+    <item android:id="@+id/action_music"
+        app:showAsAction="ifRoom"
+        android:title="@string/bottom_menu_central"
+        android:icon="@drawable/music_note_24dp" />
+    <item android:id="@+id/action_account"
+        app:showAsAction="ifRoom"
+        android:title="@string/bottom_menu_right"
+        android:icon="@drawable/account_circle_24dp" />
+</menu>

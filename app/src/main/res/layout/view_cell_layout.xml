@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="10dp" >
+
+    <ImageView
+        android:id="@+id/music_avatar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        tools:background="#AAA" />
+
+    <TextView android:id="@+id/music_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@android:color/black" android:layout_marginLeft="10dp" android:layout_toRightOf="@+id/music_avatar" android:layout_alignTop="@+id/music_avatar" android:textStyle="bold" tools:text="Pseudo" />
+
+    <TextView android:id="@+id/music_artist" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@android:color/black" android:layout_alignLeft="@+id/music_title" android:layout_below="@+id/music_title" tools:text="Texte de mon tweet" />
+
+    <ImageButton
+        android:id="@+id/music_favourite"
+        android:layout_width="wrap_content"
+        android:layout_height="23dp"
+        android:layout_alignTop="@+id/music_avatar"
+        android:layout_alignBottom="@+id/music_avatar"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="15dp"
+        android:background="@color/colorTransparent"
+        app:srcCompat="@drawable/favorite_border_24dp" />
+
+</RelativeLayout>
