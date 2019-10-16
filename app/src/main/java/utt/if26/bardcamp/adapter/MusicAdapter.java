@@ -1,10 +1,16 @@
 package utt.if26.bardcamp.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Icon;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageButton;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -12,9 +18,10 @@ import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.models.Music;
 import utt.if26.bardcamp.views.MusicListViewHolder;
 
+import static android.content.ContentValues.TAG;
+
 public class MusicAdapter extends ArrayAdapter<Music> {
 
-    //tweets est la liste des models à afficher
     public MusicAdapter(Context context, List<Music> tweets) {
         super(context, 0, tweets);
     }
@@ -36,12 +43,26 @@ public class MusicAdapter extends ArrayAdapter<Music> {
             convertView.setTag(viewHolder);
         }
 
-        Music music = getItem(position);
+        final Music music = getItem(position);
 
-        //il ne reste plus qu'à remplir notre vue
         viewHolder.artist.setText(music.getArtistName());
         viewHolder.title.setText(music.getTitle());
-        viewHolder.avatar.setImageURI(music.getPicPath());
+        if(music.isFavourite()) viewHolder.favourite.setColorFilter(R.color.colorAccent);
+        Picasso.get().load(music.getPicPath()).into(viewHolder.avatar);
+
+        final MusicListViewHolder finalViewHolder = viewHolder;
+        viewHolder.favourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                music.setFavourite(!music.isFavourite());
+                Log.d(TAG, "CLICKED ON THE BUTTON" + music.isFavourite());
+                if(music.isFavourite()) {
+                    finalViewHolder.favourite.setColorFilter(R.color.colorAccent);
+                } else {
+                    finalViewHolder.favourite.setColorFilter(R.color.colorGrey);
+                }
+            }
+        });
 
         return convertView;
     }

@@ -6,7 +6,15 @@ public class Music {
     private String artistName;
     private String title;
     private Uri path;
-    private Uri picPath;
+    private String picPath;
+    private boolean favourite = false;
+
+    public Music(String artistName, String title, String path, String picPath) {
+        this.artistName = artistName;
+        this.title = title;
+        this.path = Uri.parse(path);
+        this.setPicPath(picPath);
+    }
 
     public String getArtistName() {
         return artistName;
@@ -32,18 +40,19 @@ public class Music {
         this.path = path;
     }
 
-    public Uri getPicPath() {
+    public String getPicPath() {
         return picPath;
     }
 
     public void setPicPath(String picPath) {
-        this.picPath = Uri.parse(picPath);
+        this.picPath = picPath;
     }
 
-    public Music(String artistName, String title, String path, String picPath) {
-        this.artistName = artistName;
-        this.title = title;
-        this.path = Uri.parse(path);
-        this.picPath = Uri.parse(picPath);
+    public boolean isFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(boolean favourite) {
+        this.favourite = favourite;
     }
 }

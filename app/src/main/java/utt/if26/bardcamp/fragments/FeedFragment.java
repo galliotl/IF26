@@ -3,9 +3,11 @@ package utt.if26.bardcamp.fragments;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -14,6 +16,8 @@ import java.util.List;
 import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.adapter.MusicAdapter;
 import utt.if26.bardcamp.models.Music;
+
+import static android.content.ContentValues.TAG;
 
 public class FeedFragment extends Fragment {
 
@@ -25,8 +29,16 @@ public class FeedFragment extends Fragment {
         ListView mListView = rootView.findViewById(R.id.feed_listview);
         List<Music> musics = genererMusics();
 
-        MusicAdapter adapter = new MusicAdapter(getActivity(),musics);
+        final MusicAdapter adapter = new MusicAdapter(getActivity(),musics);
         mListView.setAdapter(adapter);
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.d(TAG, "Music is now playing");
+                Music item = (Music) adapterView.getItemAtPosition(i);
+            }
+        });
 
         return rootView;
     }

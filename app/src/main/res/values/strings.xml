@@ -5,4 +5,10 @@
     <string name="bottom_menu_left">Feed</string>
     <string name="bottom_menu_central">Music</string>
     <string name="bottom_menu_right">Account</string>
+
+    <!-- MUSIC PLAYER FRAGMENT -->
+    <string name="song_playing">%1$s, %2$s</string>
+
+    <!-- ACCOUNT FRAGMENT -->
+    <string name="name_field">%1$s %2$s</string>
 </resources>
