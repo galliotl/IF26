@@ -1,12 +1,12 @@
 package utt.if26.bardcamp.adapter;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,8 +16,6 @@ import java.util.List;
 
 import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.models.Music;
-
-import static android.content.ContentValues.TAG;
 
 public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> {
 
@@ -47,16 +45,42 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
     public MusicAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_cell_layout,parent, false);
+
         return new ViewHolder(v);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        Music music = mDataset.get(position);
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+        final Music music = mDataset.get(position);
         Picasso.get().load(music.getPicPath()).into(holder.avatar);
         holder.artist.setText(music.getArtistName());
         holder.title.setText(music.getTitle());
+        holder.favourite.setImageResource(music.isFavourite() ? R.drawable.favorite_24dp : R.drawable.favorite_border_24dp);
+
+        // click listener for favIcon
+        holder.favourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(music.isFavourite()) {
+                    Toast.makeText(v.getContext(), "removed from favourites", Toast.LENGTH_SHORT).show();
+                    music.setFavourite(false);
+                    holder.favourite.setImageResource(R.drawable.favorite_border_24dp);
+                } else {
+                    Toast.makeText(v.getContext(), "Added to favourites", Toast.LENGTH_SHORT).show();
+                    music.setFavourite(true);
+                    holder.favourite.setImageResource(R.drawable.favorite_24dp);
+                }
+            }
+        });
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(v.getContext(), "music will be played", Toast.LENGTH_SHORT).show();
+                // TODO: play the music
+            }
+        });
     }
 
     @Override

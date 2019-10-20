@@ -5,18 +5,14 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import utt.if26.bardcamp.R;
-import utt.if26.bardcamp.models.Music;
 
 public class MusicFragment extends Fragment {
 
-    private Music music;
-
-    public MusicFragment(Music music) {
-        this.music = music;
-    }
     public MusicFragment() {}
 
     @Override
@@ -25,10 +21,25 @@ public class MusicFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.music_fragment, container, false);
 
-        TextView artistSongText = getActivity().findViewById(R.id.artist_song_text);
-        if(music != null) {
-            artistSongText.setText(getString(R.string.song_playing, music.getArtistName(), music.getTitle()));
-        }
+        TextView artistSongText = rootView.findViewById(R.id.artist_song_text);
+        ImageButton playPause = rootView.findViewById(R.id.play_pause_btn);
+
+        playPause.setOnClickListener(
+                new View.OnClickListener() {
+                    boolean play = true;
+                    @Override
+                    public void onClick(View view) {
+                        if(play) {
+                            play = false;
+                            ((ImageButton) view).setImageResource(R.drawable.play_72dp);
+                        } else {
+                            play = true;
+                            ((ImageButton) view).setImageResource(R.drawable.pause_72dp);
+                        }
+                    }
+                }
+        );
+
         return rootView;
     }
 }

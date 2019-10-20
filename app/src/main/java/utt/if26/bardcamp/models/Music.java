@@ -9,12 +9,21 @@ public class Music {
     private String picPath;
     private boolean favourite = false;
 
+    public Music(String artistName, String title, String path, String picPath, boolean favourite) {
+        this.artistName = artistName;
+        this.title = title;
+        this.path = Uri.parse(path);
+        this.setPicPath(picPath);
+        this.favourite = favourite;
+    }
+
     public Music(String artistName, String title, String path, String picPath) {
         this.artistName = artistName;
         this.title = title;
         this.path = Uri.parse(path);
         this.setPicPath(picPath);
     }
+
 
     public String getArtistName() {
         return artistName;

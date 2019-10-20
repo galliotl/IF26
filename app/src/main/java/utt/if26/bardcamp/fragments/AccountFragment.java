@@ -10,9 +10,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import utt.if26.bardcamp.MainActivity;
 import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.adapter.MusicAdapter;
 import utt.if26.bardcamp.models.Music;
@@ -29,6 +32,14 @@ public class AccountFragment extends Fragment {
 
         TextView name = rootView.findViewById(R.id.account_name);
         name.setText(getString(R.string.name_field, "default", "name"));
+
+        FloatingActionButton fabCancel = rootView.findViewById(R.id.fab_edit);
+        fabCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity) getActivity()).loadFragment(new EditFragment());
+            }
+        });
 
         recyclerView = rootView.findViewById(R.id.faved_list);
 
