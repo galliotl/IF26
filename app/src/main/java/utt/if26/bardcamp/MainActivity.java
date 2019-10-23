@@ -1,5 +1,6 @@
 package utt.if26.bardcamp;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.content.ComponentName;
@@ -16,6 +17,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.sql.SQLData;
 import java.util.ArrayList;
 
 import utt.if26.bardcamp.fragments.AccountFragment;
@@ -24,6 +26,12 @@ import utt.if26.bardcamp.fragments.MusicFragment;
 import utt.if26.bardcamp.models.Music;
 import utt.if26.bardcamp.services.MusicService;
 
+import utt.if26.bardcamp.bdd.test;
+
+//import utt.if26.bardcamp.bdd.SQL;
+
+
+
 public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigationView;
@@ -31,8 +39,19 @@ public class MainActivity extends AppCompatActivity {
     private Intent playIntent;
     private boolean musicBound=false;
 
+
+
+
+
+    private SQLiteDatabase db;
+   // private SQL test;
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.configureBottomView();
@@ -42,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        new test();
+        //test.onCreate(db);
+
         if(playIntent==null){
             playIntent = new Intent(this, MusicService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
