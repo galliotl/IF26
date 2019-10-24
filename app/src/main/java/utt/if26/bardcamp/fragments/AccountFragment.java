@@ -11,40 +11,48 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import utt.if26.bardcamp.MainActivity;
 import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.adapter.MusicAdapter;
 import utt.if26.bardcamp.models.Music;
+import utt.if26.bardcamp.models.User;
 
 public class AccountFragment extends Fragment {
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager layoutManager;
-    List<Music> musics = new ArrayList();
+    private ArrayList<Music> musics = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final MainActivity mainActivity = (MainActivity) getActivity();
         View rootView = inflater.inflate(R.layout.account_fragment, container, false);
 
         TextView name = rootView.findViewById(R.id.account_name);
-        name.setText(getString(R.string.name_field, "default", "name"));
+
+        if(mainActivity.getUser() != null) {
+            User user = mainActivity.getUser();
+            name.setText(getString(R.string.name_field, user.getFirstName(), user.getLastName()));
+            CircleImageView avatar = rootView.findViewById(R.id.account_avatar);
+            Picasso.get().load(user.getPicPath()).into(avatar);
+        } else {
+            name.setText(getString(R.string.name_field, "default", "name"));
+        }
 
         FloatingActionButton fabCancel = rootView.findViewById(R.id.fab_edit);
         fabCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity) getActivity()).loadFragment(new EditFragment());
+                mainActivity.loadFragment(new EditFragment());
             }
         });
 
-        recyclerView = rootView.findViewById(R.id.faved_list);
+        RecyclerView recyclerView = rootView.findViewById(R.id.faved_list);
 
-        mAdapter = new MusicAdapter(musics);
-        layoutManager = new LinearLayoutManager(getContext());
+        RecyclerView.Adapter<MusicAdapter.ViewHolder> mAdapter = new MusicAdapter(musics);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(mAdapter);
 

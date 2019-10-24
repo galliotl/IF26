@@ -22,6 +22,7 @@ import utt.if26.bardcamp.fragments.AccountFragment;
 import utt.if26.bardcamp.fragments.FeedFragment;
 import utt.if26.bardcamp.fragments.MusicFragment;
 import utt.if26.bardcamp.models.Music;
+import utt.if26.bardcamp.models.User;
 import utt.if26.bardcamp.services.MusicService;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,11 +32,14 @@ public class MainActivity extends AppCompatActivity {
     private Intent playIntent;
     private boolean musicBound=false;
 
+    private User user;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.configureBottomView();
+        user = fetchUser();
         loadFragment(new FeedFragment());
     }
 
@@ -126,5 +130,13 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.activity_main_frame_layout, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public User fetchUser(){
+        return new User("https://scontent-cdt1-1.xx.fbcdn.net/v/t1.0-9/49001852_1941748439256418_6127957719006576640_n.jpg?_nc_cat=102&_nc_oc=AQlCTIYBxNtMHlP6LKYQn0qA5aS796PUglPOX2ArmMm_PmatSkaH6KcshlvaEPxeqf0&_nc_ht=scontent-cdt1-1.xx&oh=b4ab1562225aa4c807c51e820bf0d201&oe=5E5E04AD","Lucas", "Galliot");
     }
 }
