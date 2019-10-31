@@ -1,5 +1,8 @@
 package utt.if26.bardcamp;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.content.ComponentName;
@@ -18,6 +21,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 
+import utt.if26.bardcamp.bdd.AppDB;
+import utt.if26.bardcamp.bdd.AppDBTable;
 import utt.if26.bardcamp.fragments.AccountFragment;
 import utt.if26.bardcamp.fragments.FeedFragment;
 import utt.if26.bardcamp.fragments.MusicFragment;
@@ -25,18 +30,21 @@ import utt.if26.bardcamp.models.Music;
 import utt.if26.bardcamp.models.User;
 import utt.if26.bardcamp.services.MusicService;
 
+
 public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigationView;
     private MusicService musicSrv;
     private Intent playIntent;
     private boolean musicBound=false;
+    private SQLiteDatabase db;
 
     private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        db = new AppDB(this).getWritableDatabase();
         setContentView(R.layout.activity_main);
         this.configureBottomView();
         user = fetchUser();
@@ -46,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
         if(playIntent==null){
             playIntent = new Intent(this, MusicService.class);
             bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
@@ -78,21 +87,6 @@ public class MainActivity extends AppCompatActivity {
         musicSrv=null;
         super.onDestroy();
     }
-
-    /*@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_shuffle:
-                //shuffle
-                break;
-            case R.id.action_end:
-                stopService(playIntent);
-                musicSrv=null;
-                System.exit(0);
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }*/
 
     public void musicPicked(View view){
         musicSrv.setMusic(Integer.parseInt(view.getTag().toString()));
@@ -136,7 +130,30 @@ public class MainActivity extends AppCompatActivity {
         return user;
     }
 
+    public void initSomeData() {
+        addUser("Lucas", "Galliot", "https://scontent-cdt1-1.xx.fbcdn.net/v/t1.0-9/49001852_1941748439256418_6127957719006576640_n.jpg?_nc_cat=102&_nc_oc=AQlCTIYBxNtMHlP6LKYQn0qA5aS796PUglPOX2ArmMm_PmatSkaH6KcshlvaEPxeqf0&_nc_ht=scontent-cdt1-1.xx&oh=b4ab1562225aa4c807c51e820bf0d201&oe=5E5E04AD");
+        addMusic("lalaland",1, "../path/to/music", "");
+    }
+
     public User fetchUser(){
-        return new User("https://scontent-cdt1-1.xx.fbcdn.net/v/t1.0-9/49001852_1941748439256418_6127957719006576640_n.jpg?_nc_cat=102&_nc_oc=AQlCTIYBxNtMHlP6LKYQn0qA5aS796PUglPOX2ArmMm_PmatSkaH6KcshlvaEPxeqf0&_nc_ht=scontent-cdt1-1.xx&oh=b4ab1562225aa4c807c51e820bf0d201&oe=5E5E04AD","Lucas", "Galliot");
+        Cursor cursor = db.rawQuery("SELECT * FROM " + AppDBTable.User.TABLE_NAME + " WHERE " + AppDBTable.User._ID + "=?", new String[]{"1"});
+        return new User("https://scontent-cdt1-1.xx.fbcdn.net/v/t1.0-9/49001852_1941748439256418_6127957719006576640_n.jpg?_nc_cat=102&_nc_oc=AQlCTIYBxNtMHlP6LKYQn0qA5aS796PUglPOX2ArmMm_PmatSkaH6KcshlvaEPxeqf0&_nc_ht=scontent-cdt1-1.xx&oh=b4ab1562225aa4c807c51e820bf0d201&oe=5E5E04AD","Lucas", "Galliot", 1);
+    }
+
+    public void addUser(String firstName, String name, String picPath) {
+        ContentValues cv = new ContentValues();
+        cv.put(AppDBTable.User.COLUMN_FIRSTNAME, firstName);
+        cv.put(AppDBTable.User.COLUMN_NAME, name);
+        cv.put(AppDBTable.User.COLUMN_PIC_PATH, picPath);
+        db.insert(AppDBTable.User.TABLE_NAME, null, cv);
+    }
+
+    public void addMusic(String title, int artistId, String path, String picPath){
+        ContentValues cv = new ContentValues();
+        cv.put(AppDBTable.Music.COLUMN_ARTIST, artistId);
+        cv.put(AppDBTable.Music.COLUMN_PATH, path);
+        cv.put(AppDBTable.Music.COLUMN_PIC_PATH, picPath);
+        cv.put(AppDBTable.Music.COLUMN_TITLE, title);
+        db.insert(AppDBTable.Music.TABLE_NAME, null, cv);
     }
 }

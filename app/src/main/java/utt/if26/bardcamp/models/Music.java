@@ -7,11 +7,14 @@ public class Music {
     private String title;
     private Uri path;
     private String picPath;
+
+    private int ID;
     private boolean favourite = false;
 
-    public Music(String artistName, String title, String path, String picPath, boolean favourite) {
+    public Music(int ID, String artistName, String title, String path, String picPath, boolean favourite) {
         this.artistName = artistName;
         this.title = title;
+        this.ID = ID;
         this.path = Uri.parse(path);
         this.setPicPath(picPath);
         this.favourite = favourite;
@@ -52,6 +55,8 @@ public class Music {
     public String getPicPath() {
         return picPath;
     }
+
+    public int getID() { return ID; }
 
     public void setPicPath(String picPath) {
         this.picPath = picPath;

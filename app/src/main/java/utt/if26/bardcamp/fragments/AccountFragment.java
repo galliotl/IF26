@@ -49,7 +49,7 @@ public class AccountFragment extends Fragment {
             }
         });
 
-        RecyclerView recyclerView = rootView.findViewById(R.id.faved_list);
+        /*RecyclerView recyclerView = rootView.findViewById(R.id.faved_list);
 
         RecyclerView.Adapter<MusicAdapter.ViewHolder> mAdapter = new MusicAdapter(musics);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -57,7 +57,7 @@ public class AccountFragment extends Fragment {
         recyclerView.setAdapter(mAdapter);
 
         generateMusics();
-        mAdapter.notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();*/
         return rootView;
     }
 

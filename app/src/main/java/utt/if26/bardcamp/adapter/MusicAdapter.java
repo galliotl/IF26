@@ -1,5 +1,6 @@
 package utt.if26.bardcamp.adapter;
 
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +13,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
-
 import utt.if26.bardcamp.R;
-import utt.if26.bardcamp.models.Music;
+import utt.if26.bardcamp.bdd.AppDBTable;
 
 public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> {
 
-    private List<Music> mDataset;
+    private Cursor mCursor;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView title;
@@ -36,8 +35,8 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
         }
     }
 
-    public MusicAdapter(List<Music> myDataset) {
-        mDataset = myDataset;
+    public MusicAdapter(Cursor myDataset) {
+        mCursor = myDataset;
     }
 
     // Create new views (invoked by the layout manager)
@@ -52,14 +51,22 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        final Music music = mDataset.get(position);
-        Picasso.get().load(music.getPicPath()).into(holder.avatar);
-        holder.artist.setText(music.getArtistName());
-        holder.title.setText(music.getTitle());
-        holder.favourite.setImageResource(music.isFavourite() ? R.drawable.favorite_24dp : R.drawable.favorite_border_24dp);
+        if(!mCursor.move(position)) return;
+
+        String picPath = mCursor.getString(mCursor.getColumnIndexOrThrow(AppDBTable.Music.COLUMN_PIC_PATH));
+        String displayName = mCursor.getString(mCursor.getColumnIndexOrThrow(AppDBTable.User.COLUMN_FIRSTNAME))
+                + " " + mCursor.getString(mCursor.getColumnIndexOrThrow(AppDBTable.User.COLUMN_NAME));
+        String title = mCursor.getString(mCursor.getColumnIndexOrThrow(AppDBTable.Music.COLUMN_TITLE));
+        boolean fav = true;
+        if(mCursor.getInt(mCursor.getColumnIndexOrThrow(AppDBTable.Favourite._ID)) == 0) fav = false;
+
+        Picasso.get().load(picPath).into(holder.avatar);
+        holder.artist.setText(displayName);
+        holder.title.setText(title);
+        holder.favourite.setImageResource(fav ? R.drawable.favorite_24dp : R.drawable.favorite_border_24dp);
 
         // click listener for favIcon
-        holder.favourite.setOnClickListener(new View.OnClickListener() {
+        /*holder.favourite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(music.isFavourite()) {
@@ -73,7 +80,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
                 }
             }
         });
-
+        */
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,6 +92,12 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return mDataset.size();
+        return mCursor.getCount();
+    }
+
+    public void swapCursor(Cursor newCursor) {
+        if(this.mCursor != null) mCursor.close();
+        mCursor = newCursor;
+        if(this.mCursor != null) notifyDataSetChanged();
     }
 }

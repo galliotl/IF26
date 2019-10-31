@@ -1,26 +1,26 @@
 package utt.if26.bardcamp.fragments;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.adapter.MusicAdapter;
-import utt.if26.bardcamp.models.Music;
+import utt.if26.bardcamp.bdd.AppDB;
+import utt.if26.bardcamp.bdd.AppDBTable;
 
 public class FeedFragment extends Fragment {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
-    List<Music> musics = new ArrayList();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -29,21 +29,26 @@ public class FeedFragment extends Fragment {
 
         recyclerView = rootView.findViewById(R.id.feed_list);
 
-        mAdapter = new MusicAdapter(musics);
+        mAdapter = new MusicAdapter(fetchMusicsFromDB());
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(mAdapter);
 
-        generateMusics();
-        mAdapter.notifyDataSetChanged();
         return rootView;
     }
 
-    private void generateMusics(){
-        musics.add(new Music("Artist1", "song1", "../../sjj.mp3", "http://icons.iconarchive.com/icons/icons8/ios7/512/Music-Music-icon.png"));
-        musics.add(new Music("Artist2", "song2", "../../sjj.mp3", "http://icons.iconarchive.com/icons/icons8/ios7/512/Music-Music-icon.png"));
-        musics.add(new Music("Artist3", "song3", "../../sjj.mp3", "http://icons.iconarchive.com/icons/icons8/ios7/512/Music-Music-icon.png"));
-        musics.add(new Music("Artist4", "song4", "../../sjj.mp3", "http://icons.iconarchive.com/icons/icons8/ios7/512/Music-Music-icon.png"));
-        musics.add(new Music("Artist1", "song1", "../../sjj.mp3", "http://icons.iconarchive.com/icons/icons8/ios7/512/Music-Music-icon.png"));
+    private Cursor fetchMusicsFromDB() {
+        SQLiteDatabase database = new AppDB(getContext()).getReadableDatabase();
+
+        String query = "SELECT * FROM " + AppDBTable.Music.TABLE_NAME +
+                " LEFT JOIN " + AppDBTable.User.TABLE_NAME +
+                " ON user." + AppDBTable.User._ID + "=music." + AppDBTable.Music.COLUMN_ARTIST +
+                " LEFT JOIN (SELECT * FROM "+ AppDBTable.Favourite.TABLE_NAME +
+                    " WHERE " + AppDBTable.Favourite.COLUMN_USER + "=1" + ") as fav" + // TODO: replace 1 with user.id
+                " ON fav." + AppDBTable.Favourite.COLUMN_MUSIC + "=music." + AppDBTable.Music._ID;
+
+        Log.d("DB",query);
+
+        return database.rawQuery(query,null);
     }
 }
