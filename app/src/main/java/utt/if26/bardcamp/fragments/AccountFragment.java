@@ -1,6 +1,9 @@
 package utt.if26.bardcamp.fragments;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +16,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 import utt.if26.bardcamp.MainActivity;
 import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.adapter.MusicAdapter;
-import utt.if26.bardcamp.models.Music;
+import utt.if26.bardcamp.bdd.AppDB;
+import utt.if26.bardcamp.bdd.AppDBTable;
 import utt.if26.bardcamp.models.User;
 
 public class AccountFragment extends Fragment {
-    private ArrayList<Music> musics = new ArrayList<>();
+    User user;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -31,12 +33,21 @@ public class AccountFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.account_fragment, container, false);
 
         TextView name = rootView.findViewById(R.id.account_name);
-
-        if(mainActivity.getUser() != null) {
-            User user = mainActivity.getUser();
+        user = mainActivity.getUser();
+        if(user != null) {
+            user = mainActivity.getUser();
             name.setText(getString(R.string.name_field, user.getFirstName(), user.getLastName()));
             CircleImageView avatar = rootView.findViewById(R.id.account_avatar);
             Picasso.get().load(user.getPicPath()).into(avatar);
+
+            RecyclerView recyclerView = rootView.findViewById(R.id.faved_list);
+
+            RecyclerView.Adapter<MusicAdapter.ViewHolder> mAdapter = new MusicAdapter(fetchMusicsFromDB(), user);
+            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.setAdapter(mAdapter);
+
+            mAdapter.notifyDataSetChanged();
         } else {
             name.setText(getString(R.string.name_field, "default", "name"));
         }
@@ -48,24 +59,39 @@ public class AccountFragment extends Fragment {
                 mainActivity.loadFragment(new EditFragment());
             }
         });
-
-        /*RecyclerView recyclerView = rootView.findViewById(R.id.faved_list);
-
-        RecyclerView.Adapter<MusicAdapter.ViewHolder> mAdapter = new MusicAdapter(musics);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(mAdapter);
-
-        generateMusics();
-        mAdapter.notifyDataSetChanged();*/
         return rootView;
     }
+    private Cursor fetchMusicsFromDB() {
+        SQLiteDatabase database = new AppDB(getContext()).getReadableDatabase();
+        String query = "SELECT"
+                // Projection
+                + " m."+ AppDBTable.Music._ID
+                + ", m."+AppDBTable.Music.COLUMN_ARTIST
+                + ", m."+AppDBTable.Music.COLUMN_TITLE
+                + ", m."+AppDBTable.Music.COLUMN_PIC_PATH
+                + ", m."+AppDBTable.Music.COLUMN_PATH
+                + ", u."+AppDBTable.User.COLUMN_FIRSTNAME
+                + ", u."+AppDBTable.User.COLUMN_NAME
+                + ", f."+AppDBTable.Favourite._ID+" as "+ AppDBTable.Favourite.ID_ALIAS
+                // Table name
+                + " FROM "+AppDBTable.Favourite.TABLE_NAME+" f"
+                // Left join
+                + " LEFT OUTER JOIN "+AppDBTable.User.TABLE_NAME+" u"
+                + " ON f."+AppDBTable.Favourite.COLUMN_USER+"=u." + AppDBTable.User._ID
+                + " LEFT OUTER JOIN "+AppDBTable.Music.TABLE_NAME+" m"
+                + " ON f."+AppDBTable.Favourite.COLUMN_MUSIC+"=m."+AppDBTable.Music._ID
+                // Where clause
+                + " WHERE f."+AppDBTable.Favourite.COLUMN_USER+"=?";
+        Cursor cursor = database.rawQuery(query, new String[] {((MainActivity)getActivity()).getUser() != null ? String.valueOf(((MainActivity)getActivity()).getUser().getId()) : "0"});
 
-    private void generateMusics(){
-        musics.add(new Music("Artist1", "song1", "../../sjj.mp3", "http://icons.iconarchive.com/icons/icons8/ios7/512/Music-Music-icon.png"));
-        musics.add(new Music("Artist2", "song2", "../../sjj.mp3", "http://icons.iconarchive.com/icons/icons8/ios7/512/Music-Music-icon.png"));
-        musics.add(new Music("Artist3", "song3", "../../sjj.mp3", "http://icons.iconarchive.com/icons/icons8/ios7/512/Music-Music-icon.png"));
-        musics.add(new Music("Artist4", "song4", "../../sjj.mp3", "http://icons.iconarchive.com/icons/icons8/ios7/512/Music-Music-icon.png"));
-        musics.add(new Music("Artist1", "song1", "../../sjj.mp3", "http://icons.iconarchive.com/icons/icons8/ios7/512/Music-Music-icon.png"));
+        /*Log.d("DB", query + "############################# " + cursor.getCount());
+        for(int i = 0; i<cursor.getCount(); i++) {
+            cursor.moveToPosition(i);
+            Log.d("#####SEPARATOR", "###########################################");
+            for(String col: cursor.getColumnNames()) {
+                Log.d("#####", col + " -> " + cursor.getString(cursor.getColumnIndexOrThrow(col)));
+            }
+        }*/
+        return cursor;
     }
 }

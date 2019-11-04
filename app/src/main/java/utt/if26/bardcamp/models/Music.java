@@ -9,9 +9,9 @@ public class Music {
     private String picPath;
 
     private int ID;
-    private boolean favourite = false;
+    private int favourite = 0;
 
-    public Music(int ID, String artistName, String title, String path, String picPath, boolean favourite) {
+    public Music(int ID, String artistName, String title, String path, String picPath, int favourite) {
         this.artistName = artistName;
         this.title = title;
         this.ID = ID;
@@ -63,10 +63,14 @@ public class Music {
     }
 
     public boolean isFavourite() {
-        return favourite;
+        return !(favourite == 0);
     }
 
-    public void setFavourite(boolean favourite) {
+    public int getFavourite() {
+        return this.favourite;
+    }
+
+    public void setFavourite(int favourite) {
         this.favourite = favourite;
     }
 }

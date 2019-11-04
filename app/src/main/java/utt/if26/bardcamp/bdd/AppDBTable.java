@@ -20,15 +20,16 @@ public class AppDBTable {
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "FOREIGN KEY(" + COLUMN_ARTIST + ") REFERENCES " +
-                User.TABLE_NAME + "(" + User._ID + ") " +
+                COLUMN_ARTIST + " INTEGER, " +
                 COLUMN_TITLE + " TEXT, " +
                 COLUMN_PATH + " TEXT, " +
-                COLUMN_PIC_PATH + " TEXT" + ")";
+                COLUMN_PIC_PATH + " TEXT," +
+                "FOREIGN KEY(" + COLUMN_ARTIST + ") REFERENCES " + User.TABLE_NAME + "(" + User._ID + ") " + ")";
     }
 
     public static class Favourite implements BaseColumns {
         public static final String TABLE_NAME = "favourite";
+        public static final String ID_ALIAS = "fav";
 
         public static final String COLUMN_USER = "user";
         public static final String COLUMN_MUSIC = "music";
@@ -36,10 +37,10 @@ public class AppDBTable {
         public static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_NAME + " (" +
                 _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "FOREIGN KEY(" + COLUMN_USER + ") REFERENCES " +
-                User.TABLE_NAME + "(" + User._ID + ") " +
-                "FOREIGN KEY(" + COLUMN_MUSIC + ") REFERENCES " +
-                Music.TABLE_NAME + "(" + Music._ID + ") " + ")";
+                COLUMN_MUSIC + " INTEGER, " +
+                COLUMN_USER + " INTEGER, " +
+                "FOREIGN KEY(" + COLUMN_USER + ") REFERENCES " + User.TABLE_NAME + "(" + User._ID + "), " +
+                "FOREIGN KEY(" + COLUMN_MUSIC + ") REFERENCES " + Music.TABLE_NAME + "(" + Music._ID + ") " + ")";
     }
 
     /**

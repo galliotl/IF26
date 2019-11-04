@@ -9,6 +9,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -57,8 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
         if(playIntent==null){
             playIntent = new Intent(this, MusicService.class);
-            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
-            startService(playIntent);
+            //bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            //startService(playIntent);
         }
     }
 
@@ -132,12 +133,30 @@ public class MainActivity extends AppCompatActivity {
 
     public void initSomeData() {
         addUser("Lucas", "Galliot", "https://scontent-cdt1-1.xx.fbcdn.net/v/t1.0-9/49001852_1941748439256418_6127957719006576640_n.jpg?_nc_cat=102&_nc_oc=AQlCTIYBxNtMHlP6LKYQn0qA5aS796PUglPOX2ArmMm_PmatSkaH6KcshlvaEPxeqf0&_nc_ht=scontent-cdt1-1.xx&oh=b4ab1562225aa4c807c51e820bf0d201&oe=5E5E04AD");
-        addMusic("lalaland",1, "../path/to/music", "");
+        addMusic("lalaland",1, "../path/to/music", "http://www.clker.com/cliparts/n/T/x/Z/f/L/music-note-th.png");
+        addFav(1, 1);
+        addMusic("laland",1, "../path/to/music", "http://www.clker.com/cliparts/n/T/x/Z/f/L/music-note-th.png");
+        addMusic("laldsaland",1, "../path/to/music", "http://www.clker.com/cliparts/n/T/x/Z/f/L/music-note-th.png");
+        addMusic("fdand",1, "../path/to/music", "http://www.clker.com/cliparts/n/T/x/Z/f/L/music-note-th.png");
+        addMusic("ftreslaland",1, "../path/to/music", "http://www.clker.com/cliparts/n/T/x/Z/f/L/music-note-th.png");
     }
 
     public User fetchUser(){
         Cursor cursor = db.rawQuery("SELECT * FROM " + AppDBTable.User.TABLE_NAME + " WHERE " + AppDBTable.User._ID + "=?", new String[]{"1"});
-        return new User("https://scontent-cdt1-1.xx.fbcdn.net/v/t1.0-9/49001852_1941748439256418_6127957719006576640_n.jpg?_nc_cat=102&_nc_oc=AQlCTIYBxNtMHlP6LKYQn0qA5aS796PUglPOX2ArmMm_PmatSkaH6KcshlvaEPxeqf0&_nc_ht=scontent-cdt1-1.xx&oh=b4ab1562225aa4c807c51e820bf0d201&oe=5E5E04AD","Lucas", "Galliot", 1);
+        User user = null;
+        if(cursor.getCount() > 0) {
+            Log.d("DB","There's a record");
+            cursor.moveToFirst();
+            user = new User(
+                    cursor.getString(cursor.getColumnIndexOrThrow(AppDBTable.User.COLUMN_PIC_PATH)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(AppDBTable.User.COLUMN_FIRSTNAME)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(AppDBTable.User.COLUMN_NAME)),
+                    cursor.getInt(cursor.getColumnIndexOrThrow(AppDBTable.User._ID)),
+                    "dsjdjs"
+            );
+        }
+        cursor.close();
+        return user;
     }
 
     public void addUser(String firstName, String name, String picPath) {
@@ -146,6 +165,13 @@ public class MainActivity extends AppCompatActivity {
         cv.put(AppDBTable.User.COLUMN_NAME, name);
         cv.put(AppDBTable.User.COLUMN_PIC_PATH, picPath);
         db.insert(AppDBTable.User.TABLE_NAME, null, cv);
+    }
+
+    public void addFav(int music, int user) {
+        ContentValues cv = new ContentValues();
+        cv.put(AppDBTable.Favourite.COLUMN_MUSIC, music);
+        cv.put(AppDBTable.Favourite.COLUMN_USER, user);
+        db.insert(AppDBTable.Favourite.TABLE_NAME, null, cv);
     }
 
     public void addMusic(String title, int artistId, String path, String picPath){
