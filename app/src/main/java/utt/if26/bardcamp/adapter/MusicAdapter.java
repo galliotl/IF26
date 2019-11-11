@@ -1,122 +1,89 @@
 package utt.if26.bardcamp.adapter;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
+import utt.if26.bardcamp.Interface.MusicClickListener;
 import utt.if26.bardcamp.R;
-import utt.if26.bardcamp.bdd.AppDB;
-import utt.if26.bardcamp.bdd.AppDBTable;
-import utt.if26.bardcamp.models.Music;
-import utt.if26.bardcamp.models.User;
+import utt.if26.bardcamp.model.MusicUI;
 
-public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> {
+public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHolder> {
+    private final LayoutInflater mInflater;
+    private List<MusicUI> musics;
+    private MusicClickListener mcl;
 
-    private Cursor mCursor;
-    private User user;
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class MusicViewHolder extends RecyclerView.ViewHolder {
         public TextView title;
         public TextView artist;
         public ImageView avatar;
         public ImageButton favourite;
 
-        public ViewHolder(View v) {
+        public MusicViewHolder(View v) {
             super(v);
             title = v.findViewById(R.id.music_title);
             artist = v.findViewById(R.id.music_artist);
             avatar = v.findViewById(R.id.music_avatar);
             favourite = v.findViewById(R.id.music_favourite);
+
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mcl.onClick(view, getAdapterPosition());
+                }
+            });
+
+            favourite.setOnClickListener(new View.OnClickListener(){
+
+                @Override
+                public void onClick(View view) {
+                    mcl.onFavouriteClick(view, getAdapterPosition());
+                }
+            });
         }
     }
 
-    public MusicAdapter(Cursor myDataset, User user) {
-        swapCursor(myDataset);
-        this.user = user;
+    public MusicAdapter(Context context, MusicClickListener mcl) {
+        mInflater = LayoutInflater.from(context);
+        this.mcl = mcl;
     }
 
-    // Create new views (invoked by the layout manager)
     @Override
-    public MusicAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        // create a new view
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_cell_layout,parent, false);
-
-        return new ViewHolder(v);
+    public MusicViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = mInflater.inflate(R.layout.view_cell_layout,parent, false);
+        return new MusicViewHolder(v);
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-        final SQLiteDatabase db = new AppDB(holder.itemView.getContext()).getWritableDatabase();
-        mCursor.moveToPosition(position);
+    public void onBindViewHolder(final MusicViewHolder holder, int position) {
+        final MusicUI music = musics.get(position);
 
-        final Music music = new Music(
-                mCursor.getInt(mCursor.getColumnIndexOrThrow(AppDBTable.Music._ID)),
-                mCursor.getString(mCursor.getColumnIndexOrThrow(AppDBTable.User.COLUMN_FIRSTNAME))+" "+mCursor.getString(mCursor.getColumnIndexOrThrow(AppDBTable.User.COLUMN_NAME)),
-                mCursor.getString(mCursor.getColumnIndexOrThrow(AppDBTable.Music.COLUMN_TITLE)),
-                mCursor.getString(mCursor.getColumnIndexOrThrow(AppDBTable.Music.COLUMN_PATH)),
-                mCursor.getString(mCursor.getColumnIndexOrThrow(AppDBTable.Music.COLUMN_PIC_PATH)),
-                mCursor.getInt(mCursor.getColumnIndexOrThrow(AppDBTable.Favourite.ID_ALIAS))
-        );
+        Picasso.get().load(music.picPath).into(holder.avatar);
+        holder.artist.setText(String.format(holder.itemView.getResources().getString(R.string.name_field), music.firstName, music.lastName));
+        holder.title.setText(music.title);
+        holder.favourite.setImageResource(music.fav != 0 ? R.drawable.favorite_24dp : R.drawable.favorite_border_24dp);
+    }
 
-        Picasso.get().load(music.getPicPath()).into(holder.avatar);
-        holder.artist.setText(music.getArtistName());
-        holder.title.setText(music.getTitle());
-        holder.favourite.setImageResource(music.isFavourite() ? R.drawable.favorite_24dp : R.drawable.favorite_border_24dp);
-
-        // click listener for favIcon
-        holder.favourite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(music.isFavourite()) {
-                    db.delete(
-                            AppDBTable.Favourite.TABLE_NAME,
-                            AppDBTable.Favourite._ID+"=?",
-                            new String[] {String.valueOf(music.getFavourite())}
-                    );
-                    music.setFavourite(0);
-                    Toast.makeText(v.getContext(), "removed from favourites", Toast.LENGTH_SHORT).show();
-                    holder.favourite.setImageResource(R.drawable.favorite_border_24dp);
-                } else {
-                    ContentValues cv = new ContentValues();
-                    cv.put(AppDBTable.Favourite.COLUMN_USER, user.getId());
-                    cv.put(AppDBTable.Favourite.COLUMN_MUSIC, music.getID());
-                    int id = Double.valueOf(db.insert(AppDBTable.Favourite.TABLE_NAME, null, cv)).intValue();
-                    music.setFavourite(id);
-                    Toast.makeText(v.getContext(), "Added to favourites", Toast.LENGTH_SHORT).show();
-                    holder.favourite.setImageResource(R.drawable.favorite_24dp);
-                }
-            }
-        });
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(v.getContext(), "music will be played", Toast.LENGTH_SHORT).show();
-                // TODO: play the music
-            }
-        });
+    public void setMusics(List<MusicUI> musics) {
+        this.musics = musics;
+        notifyDataSetChanged();
     }
 
     @Override
     public int getItemCount() {
-        return mCursor.getCount();
-    }
-
-    public void swapCursor(Cursor newCursor) {
-        if(this.mCursor != null) mCursor.close();
-        mCursor = newCursor;
-        if(this.mCursor != null) notifyDataSetChanged();
+        if(musics != null) {
+            return musics.size();
+        }
+        return 0;
     }
 }

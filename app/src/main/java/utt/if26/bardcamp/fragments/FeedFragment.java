@@ -1,77 +1,77 @@
 package utt.if26.bardcamp.fragments;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
+import android.widget.ImageButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
-import utt.if26.bardcamp.MainActivity;
+import java.util.List;
+
+import utt.if26.bardcamp.Interface.MusicClickListener;
 import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.adapter.MusicAdapter;
-import utt.if26.bardcamp.bdd.AppDB;
-import utt.if26.bardcamp.bdd.AppDBTable;
-import utt.if26.bardcamp.models.User;
+import utt.if26.bardcamp.model.MusicUI;
+import utt.if26.bardcamp.viewModel.MusicViewModel;
 
-public class FeedFragment extends Fragment {
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager layoutManager;
-    private User user;
+public class FeedFragment extends Fragment implements MusicClickListener {
+    private MusicAdapter mAdapter;
+    private List<MusicUI> musicList;
+    MusicViewModel musicViewModel;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        musicViewModel = new MusicViewModel(getActivity().getApplication());
+        LiveData<List<MusicUI>> musicData = musicViewModel.getFeed();
+        musicData.observe(this, new Observer<List<MusicUI>>() {
+            @Override
+            public void onChanged(List<MusicUI> musicUIS) {
+                musicList = musicUIS;
+                mAdapter.setMusics(musicList);
+            }
+        });
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.feed_fragment, container, false);
 
-        user = ((MainActivity) getActivity()).getUser();
-        if(user != null) {
-            recyclerView = rootView.findViewById(R.id.feed_list);
-            mAdapter = new MusicAdapter(fetchMusicsFromDB(), user);
-            layoutManager = new LinearLayoutManager(getContext());
-            recyclerView.setLayoutManager(layoutManager);
-            recyclerView.setAdapter(mAdapter);
-        }
+        RecyclerView recyclerView = rootView.findViewById(R.id.feed_list);
+        mAdapter = new MusicAdapter(this.getContext(), this);
+        mAdapter.setMusics(musicList);
+        recyclerView.setAdapter(mAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         return rootView;
     }
 
-    private Cursor fetchMusicsFromDB() {
-        SQLiteDatabase database = new AppDB(getContext()).getReadableDatabase();
-        String query = "SELECT"
-                // Projection
-                + " m."+AppDBTable.Music._ID
-                + ", m."+AppDBTable.Music.COLUMN_ARTIST
-                + ", m."+AppDBTable.Music.COLUMN_TITLE
-                + ", m."+AppDBTable.Music.COLUMN_PIC_PATH
-                + ", m."+AppDBTable.Music.COLUMN_PATH
-                + ", u."+AppDBTable.User.COLUMN_FIRSTNAME
-                + ", u."+AppDBTable.User.COLUMN_NAME
-                + ", f."+AppDBTable.Favourite._ID+" as "+ AppDBTable.Favourite.ID_ALIAS
-                // Table name
-                + " FROM "+AppDBTable.Music.TABLE_NAME+" m"
-                // Left join
-                + " LEFT OUTER JOIN "+AppDBTable.User.TABLE_NAME+" u"
-                + " ON m."+AppDBTable.Music.COLUMN_ARTIST+"=u." + AppDBTable.User._ID
-                + " LEFT OUTER JOIN"
-                + " (SELECT * FROM "+AppDBTable.Favourite.TABLE_NAME
-                + " WHERE "+AppDBTable.Favourite.COLUMN_USER+"=?) f"
-                + " ON f."+AppDBTable.Favourite.COLUMN_MUSIC+"=m."+AppDBTable.Music._ID;
-        Cursor cursor = database.rawQuery(query,new String[] {(user != null ? String.valueOf(user.getId()) : "0")});
+    @Override
+    public void onClick(View v, int position) {
+        Toast.makeText(v.getContext(), "music will be played", Toast.LENGTH_SHORT).show();
+        // TODO: play the music
+    }
 
-        /*Log.d("DB", query + "############################# " + cursor.getCount());
-        for(int i = 0; i<cursor.getCount(); i++) {
-            cursor.moveToPosition(i);
-            Log.d("#####SEPARATOR", "###########################################");
-            for(String col: cursor.getColumnNames()) {
-                Log.d("#####", col + " -> " + cursor.getString(cursor.getColumnIndexOrThrow(col)));
-            }
-        }*/
-        return cursor;
+    @Override
+    public void onFavouriteClick(View v, int position) {
+        MusicUI music = musicList.get(position);
+        if(music.fav != 0) {
+            musicViewModel.deleteFav(music.id);
+            music.fav = 0;
+            ((ImageButton) v).setImageResource(R.drawable.favorite_border_24dp);
+        } else {
+            musicViewModel.insertFav(music.id);
+            music.fav = 1;
+            ((ImageButton) v).setImageResource(R.drawable.favorite_24dp);
+        }
     }
 }

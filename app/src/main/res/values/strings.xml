@@ -3,6 +3,8 @@
 
     <!-- ACCOUNT FRAGMENT -->
     <string name="feed_title">Your feed</string>
+    <string name="name_field">%1$s %2$s</string>
+    <string name="btn_validate">Validate</string>
 
     <!-- BOTTOM MENU -->
     <string name="bottom_menu_left">Feed</string>
@@ -12,7 +14,18 @@
     <!-- MUSIC PLAYER FRAGMENT -->
     <string name="song_playing">%1$s, %2$s</string>
 
-    <!-- ACCOUNT FRAGMENT -->
-    <string name="name_field">%1$s %2$s</string>
-    <string name="btn_validate">Validate</string>
+    <!-- FEED FRAGMENT -->
+    <string name="default_song_name">music loading</string>
+
+    <!-- Login -->
+    <string name="title_activity_login">Sign in</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="login_not_known">"User not known"</string>
 </resources>

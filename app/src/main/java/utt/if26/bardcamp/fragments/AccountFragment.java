@@ -1,97 +1,130 @@
 package utt.if26.bardcamp.fragments;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 import de.hdodenhof.circleimageview.CircleImageView;
-import utt.if26.bardcamp.MainActivity;
+import utt.if26.bardcamp.Interface.MusicClickListener;
 import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.adapter.MusicAdapter;
-import utt.if26.bardcamp.bdd.AppDB;
-import utt.if26.bardcamp.bdd.AppDBTable;
-import utt.if26.bardcamp.models.User;
+import utt.if26.bardcamp.db.Entity.User;
+import utt.if26.bardcamp.model.MusicUI;
+import utt.if26.bardcamp.util.LoginResult;
+import utt.if26.bardcamp.viewModel.LoginViewModel;
+import utt.if26.bardcamp.viewModel.MusicViewModel;
 
-public class AccountFragment extends Fragment {
-    User user;
+public class AccountFragment extends Fragment implements MusicClickListener {
+
+    private MusicAdapter mAdapter;
+    private MusicViewModel musicViewModel;
+    private LoginViewModel loginViewModel;
+    private LiveData<List<MusicUI>> musicData;
+    private List<MusicUI> musicList;
+    private LiveData<LoginResult> loginResultLiveData;
+    private User currentUser;
+
+    // UI elements
+    private CircleImageView userAvatar;
+    private TextView userName;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final MainActivity mainActivity = (MainActivity) getActivity();
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        musicViewModel = new MusicViewModel(getActivity().getApplication());
+        musicData = musicViewModel.getFaved();
+        musicData.observe(this, new Observer<List<MusicUI>>() {
+            @Override
+            public void onChanged(List<MusicUI> musicUIS) {
+                musicList = musicUIS;
+                mAdapter.setMusics(musicList);
+            }
+        });
+
+        loginViewModel = new LoginViewModel(getActivity().getApplication());
+        loginResultLiveData = loginViewModel.getLoginResult();
+        loginResultLiveData.observe(this, new Observer<LoginResult>() {
+            @Override
+            public void onChanged(LoginResult loginResult) {
+                if(loginResult.getSuccess() != null) {
+                    currentUser = loginResult.getSuccess();
+                    Log.d("#######", currentUser.toString());
+                    updateUserView();
+                }
+            }
+        });
+
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.account_fragment, container, false);
 
-        TextView name = rootView.findViewById(R.id.account_name);
-        user = mainActivity.getUser();
-        if(user != null) {
-            user = mainActivity.getUser();
-            name.setText(getString(R.string.name_field, user.getFirstName(), user.getLastName()));
-            CircleImageView avatar = rootView.findViewById(R.id.account_avatar);
-            Picasso.get().load(user.getPicPath()).into(avatar);
+        userAvatar = rootView.findViewById(R.id.account_avatar);
+        userName = rootView.findViewById(R.id.account_name);
 
-            RecyclerView recyclerView = rootView.findViewById(R.id.faved_list);
+        updateUserView();
 
-            RecyclerView.Adapter<MusicAdapter.ViewHolder> mAdapter = new MusicAdapter(fetchMusicsFromDB(), user);
-            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
-            recyclerView.setLayoutManager(layoutManager);
-            recyclerView.setAdapter(mAdapter);
+        RecyclerView recyclerView = rootView.findViewById(R.id.faved_list);
 
-            mAdapter.notifyDataSetChanged();
-        } else {
-            name.setText(getString(R.string.name_field, "default", "name"));
-        }
+        mAdapter = new MusicAdapter(getContext(), this);
+        recyclerView.setAdapter(mAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         FloatingActionButton fabCancel = rootView.findViewById(R.id.fab_edit);
         fabCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.loadFragment(new EditFragment());
+                Log.d("sssssss", "Clicked");
             }
         });
         return rootView;
     }
-    private Cursor fetchMusicsFromDB() {
-        SQLiteDatabase database = new AppDB(getContext()).getReadableDatabase();
-        String query = "SELECT"
-                // Projection
-                + " m."+ AppDBTable.Music._ID
-                + ", m."+AppDBTable.Music.COLUMN_ARTIST
-                + ", m."+AppDBTable.Music.COLUMN_TITLE
-                + ", m."+AppDBTable.Music.COLUMN_PIC_PATH
-                + ", m."+AppDBTable.Music.COLUMN_PATH
-                + ", u."+AppDBTable.User.COLUMN_FIRSTNAME
-                + ", u."+AppDBTable.User.COLUMN_NAME
-                + ", f."+AppDBTable.Favourite._ID+" as "+ AppDBTable.Favourite.ID_ALIAS
-                // Table name
-                + " FROM "+AppDBTable.Favourite.TABLE_NAME+" f"
-                // Left join
-                + " LEFT OUTER JOIN "+AppDBTable.User.TABLE_NAME+" u"
-                + " ON f."+AppDBTable.Favourite.COLUMN_USER+"=u." + AppDBTable.User._ID
-                + " LEFT OUTER JOIN "+AppDBTable.Music.TABLE_NAME+" m"
-                + " ON f."+AppDBTable.Favourite.COLUMN_MUSIC+"=m."+AppDBTable.Music._ID
-                // Where clause
-                + " WHERE f."+AppDBTable.Favourite.COLUMN_USER+"=?";
-        Cursor cursor = database.rawQuery(query, new String[] {((MainActivity)getActivity()).getUser() != null ? String.valueOf(((MainActivity)getActivity()).getUser().getId()) : "0"});
 
-        /*Log.d("DB", query + "############################# " + cursor.getCount());
-        for(int i = 0; i<cursor.getCount(); i++) {
-            cursor.moveToPosition(i);
-            Log.d("#####SEPARATOR", "###########################################");
-            for(String col: cursor.getColumnNames()) {
-                Log.d("#####", col + " -> " + cursor.getString(cursor.getColumnIndexOrThrow(col)));
+    public void updateUserView(){
+        if(userName != null && userAvatar != null) {
+            if(currentUser != null) {
+                Log.d("#########", currentUser.toString());
+
+                userName.setText(getString(R.string.name_field, currentUser.firstName, currentUser.lastName));
+                Picasso.get().load(currentUser.picPath).into(userAvatar);
+            } else {
+                userName.setText(getString(R.string.name_field, "default", "name"));
             }
-        }*/
-        return cursor;
+        }
+    }
+
+    @Override
+    public void onClick(View v, int position) {
+        Toast.makeText(v.getContext(), "music will be played", Toast.LENGTH_SHORT).show();
+        // TODO: play the music
+    }
+
+    @Override
+    public void onFavouriteClick(View v, int position) {
+        // We have to delete it from the list
+        MusicUI music = musicList.get(position);
+        musicViewModel.deleteFav(music.id);
+        music.fav = 0;
+        musicList.remove(music);
+        mAdapter.setMusics(musicList);
     }
 }

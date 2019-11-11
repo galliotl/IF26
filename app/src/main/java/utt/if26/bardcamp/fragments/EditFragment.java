@@ -16,7 +16,6 @@ import com.squareup.picasso.Picasso;
 import de.hdodenhof.circleimageview.CircleImageView;
 import utt.if26.bardcamp.MainActivity;
 import utt.if26.bardcamp.R;
-import utt.if26.bardcamp.models.User;
 
 public class EditFragment extends Fragment {
 
@@ -27,13 +26,13 @@ public class EditFragment extends Fragment {
         final EditText firstName = rootView.findViewById(R.id.edit_first_name);
         final EditText lastName = rootView.findViewById(R.id.edit_name);
         final EditText editPath = rootView.findViewById(R.id.edit_pic_path);
-
-        if(mainActivity.getUser() != null) {
-            User user = mainActivity.getUser();
+/*
+        if(mainActivity.getUserFromDB() != null) {
+            User user = mainActivity.getUserFromDB();
             CircleImageView avatar = rootView.findViewById(R.id.edit_avatar);
-            firstName.setText(mainActivity.getUser().getFirstName());
-            lastName.setText(mainActivity.getUser().getLastName());
-            editPath.setText(mainActivity.getUser().getPicPath());
+            firstName.setText(mainActivity.getUserFromDB().getFirstName());
+            lastName.setText(mainActivity.getUserFromDB().getLastName());
+            editPath.setText(mainActivity.getUserFromDB().getPicPath());
             Picasso.get().load(user.getPicPath()).into(avatar);
         }
 
@@ -51,13 +50,13 @@ public class EditFragment extends Fragment {
         validate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainActivity.getUser().setFirstName(firstName.getText().toString());
-                mainActivity.getUser().setLastName(lastName.getText().toString());
-                mainActivity.getUser().setPicPath(editPath.getText().toString());
+                mainActivity.getUserFromDB().setFirstName(firstName.getText().toString());
+                mainActivity.getUserFromDB().setLastName(lastName.getText().toString());
+                mainActivity.getUserFromDB().setPicPath(editPath.getText().toString());
                 Toast.makeText(mainActivity, "Updated!", Toast.LENGTH_SHORT).show();
                 mainActivity.loadFragment(new AccountFragment());
             }
-        });
+        });*/
         return rootView;
     }
 }
