@@ -13,7 +13,6 @@ import utt.if26.bardcamp.db.Dao.FavDAO;
 import utt.if26.bardcamp.db.Dao.MusicDAO;
 import utt.if26.bardcamp.db.Entity.Favourite;
 import utt.if26.bardcamp.db.Entity.Music;
-import utt.if26.bardcamp.db.dataSource.LoginDataSource;
 import utt.if26.bardcamp.model.MusicUI;
 
 
@@ -21,27 +20,23 @@ public class Repository {
     private MusicDAO musicDAO;
     private FavDAO favDAO;
 
-    private LoginDataSource loginDataSource;
-    private LiveData<String> userId;
 
     public Repository(Application application) {
         AppDB db = AppDB.getDatabase(application);
         favDAO = db.favDAO();
         musicDAO = db.musicDAO();
-        loginDataSource = new LoginDataSource(application.getApplicationContext()); // TODO: see if it is really needed or mabe make an observer in each activities
-        userId = loginDataSource.getUserId();
     }
 
     public void insertMusic (Music music) {new insertMusicAsyncTask(musicDAO).execute(music);}
 
-    public LiveData<List<MusicUI>> getFaved() {
-        return favDAO.getFavedMusics(userId.getValue());
+    public LiveData<List<MusicUI>> getFaved(String username) {
+        return favDAO.getFavedMusics(username);
     }
 
-    public LiveData<List<MusicUI>> getFeed() {
+    public LiveData<List<MusicUI>> getFeed(String username) {
         LiveData<List<MusicUI>> toReturn = null;
         try {
-            toReturn = new getFeedAsyncTask(musicDAO).execute(userId.getValue()).get();
+            toReturn = new getFeedAsyncTask(musicDAO).execute(username).get();
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -51,17 +46,12 @@ public class Repository {
     }
 
 
-    public void insertFav (Favourite fav) {new insertFavAsyncTask(favDAO).execute(fav);}
-    public void insertFav(int mid) {
-        String uid = userId.getValue();
-        if(uid != null) {
-            Favourite fav = new Favourite(mid, uid);
-            new insertFavAsyncTask(favDAO).execute(fav);
-        }
+    public void insertFav(int mid, String username) {
+        Favourite fav = new Favourite(mid, username);
+        new insertFavAsyncTask(favDAO).execute(fav);
     }
-    public void deleteFav (int mid) {
-        String uid = userId.getValue();
-        if(uid != null) new deleteFavAsyncTask(favDAO, uid, mid).execute();
+    public void deleteFav (int mid, String username) {
+        new deleteFavAsyncTask(favDAO, username, mid).execute();
     }
 
     private static class insertMusicAsyncTask extends AsyncTask<Music, Void, Void> {

@@ -28,6 +28,10 @@ public class LoginViewModel extends ViewModel {
         loginResult.setValue(new LoginResult(repository.getLoggedInUser()));
     }
 
+    public User getUser(String username) {
+        return repository.getUser(username);
+    }
+
     public LiveData<LoginFormState> getLoginFormState() {
         return loginFormState;
     }
@@ -53,14 +57,26 @@ public class LoginViewModel extends ViewModel {
         }
     }
 
+    public void signup(User user){
+        Result<User> result = repository.signup(user);
+
+        if (result instanceof Result.Success) {
+            User data = ((Result.Success<User>) result).getData();
+            loginResult.setValue(new LoginResult(data));
+        } else {
+            Exception e = ((Result.Error) result).getError();
+            loginResult.setValue(new LoginResult(R.string.signup_fail));
+        }
+    }
+
     public void logout() {
         repository.logout();
+        loginResult.setValue(new LoginResult(R.string.signup_fail));
     }
 
     public boolean isLoggedIn() {
         return repository.isLoggedIn();
     }
-
 
     public void loginDataChanged(String username, String password) {
         if (!isUserNameValid(username)) {

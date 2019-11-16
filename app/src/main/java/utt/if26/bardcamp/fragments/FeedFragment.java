@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Objects;
 
 import utt.if26.bardcamp.Interface.MusicClickListener;
 import utt.if26.bardcamp.R;
@@ -26,13 +27,15 @@ import utt.if26.bardcamp.viewModel.MusicViewModel;
 public class FeedFragment extends Fragment implements MusicClickListener {
     private MusicAdapter mAdapter;
     private List<MusicUI> musicList;
-    MusicViewModel musicViewModel;
+    private MusicViewModel musicViewModel;
+    private String username;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        musicViewModel = new MusicViewModel(getActivity().getApplication());
-        LiveData<List<MusicUI>> musicData = musicViewModel.getFeed();
+        musicViewModel = new MusicViewModel(Objects.requireNonNull(getActivity()).getApplication());
+        username = getArguments() != null ? getArguments().getString("userId") : null;
+        LiveData<List<MusicUI>> musicData = musicViewModel.getFeed(username);
         musicData.observe(this, new Observer<List<MusicUI>>() {
             @Override
             public void onChanged(List<MusicUI> musicUIS) {
@@ -65,11 +68,11 @@ public class FeedFragment extends Fragment implements MusicClickListener {
     public void onFavouriteClick(View v, int position) {
         MusicUI music = musicList.get(position);
         if(music.fav != 0) {
-            musicViewModel.deleteFav(music.id);
+            musicViewModel.deleteFav(music.id, username);
             music.fav = 0;
             ((ImageButton) v).setImageResource(R.drawable.favorite_border_24dp);
         } else {
-            musicViewModel.insertFav(music.id);
+            musicViewModel.insertFav(music.id, username);
             music.fav = 1;
             ((ImageButton) v).setImageResource(R.drawable.favorite_24dp);
         }

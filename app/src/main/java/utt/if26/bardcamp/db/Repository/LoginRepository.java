@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import androidx.lifecycle.LiveData;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 import utt.if26.bardcamp.db.AppDB;
 import utt.if26.bardcamp.db.Dao.UserDAO;
@@ -32,9 +31,18 @@ public class LoginRepository {
         User user = null;
         try {
             user = new getUserAsyncTask(userDAO).execute(userId.getValue()).get();
-        } catch (ExecutionException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (InterruptedException e) {
+        }
+        return user;
+    }
+
+    public User getUser(String uid){
+        if(uid == null) return null;
+        User user = null;
+        try {
+            user = new getUserAsyncTask(userDAO).execute(uid).get();
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return user;
@@ -49,13 +57,11 @@ public class LoginRepository {
     }
 
     public Result<User> login(String username, String password) {
-        User user = null;
+        User user;
         try {
             user = new getUserAsyncTask(userDAO).execute(username).get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            return new Result.Error(new Exception("an error has occurred"));
         }
         if(user == null) {
             return new Result.Error(new Exception("User not known"));
@@ -69,7 +75,20 @@ public class LoginRepository {
         }
     }
 
-    private static class insertUserAsyncTask extends AsyncTask<User, Void, Void> {
+    public Result<User> signup(User user){
+        try {
+            if(new insertUserAsyncTask(userDAO).execute(user).get()) {
+                loginDataSource.login(user.userName);
+                return new Result.Success<>(user);
+            }
+            return new Result.Error(new Exception("Username already exists"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Result.Error(e);
+        }
+    }
+
+    private static class insertUserAsyncTask extends AsyncTask<User, Void, Boolean> {
 
         private UserDAO mAsyncTaskDao;
 
@@ -78,9 +97,13 @@ public class LoginRepository {
         }
 
         @Override
-        protected Void doInBackground(final User... params) {
-            mAsyncTaskDao.insert(params[0]);
-            return null;
+        protected Boolean doInBackground(final User... params) {
+            try {
+                mAsyncTaskDao.insert(params[0]);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
         }
     }
 

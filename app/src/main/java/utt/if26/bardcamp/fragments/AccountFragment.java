@@ -1,11 +1,12 @@
 package utt.if26.bardcamp.fragments;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,14 +22,15 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import utt.if26.bardcamp.Interface.MusicClickListener;
+import utt.if26.bardcamp.LoginActivity;
 import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.adapter.MusicAdapter;
 import utt.if26.bardcamp.db.Entity.User;
 import utt.if26.bardcamp.model.MusicUI;
-import utt.if26.bardcamp.util.LoginResult;
 import utt.if26.bardcamp.viewModel.LoginViewModel;
 import utt.if26.bardcamp.viewModel.MusicViewModel;
 
@@ -37,57 +39,65 @@ public class AccountFragment extends Fragment implements MusicClickListener {
     private MusicAdapter mAdapter;
     private MusicViewModel musicViewModel;
     private LoginViewModel loginViewModel;
-    private LiveData<List<MusicUI>> musicData;
     private List<MusicUI> musicList;
-    private LiveData<LoginResult> loginResultLiveData;
     private User currentUser;
-
-    // UI elements
-    private CircleImageView userAvatar;
-    private TextView userName;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        musicViewModel = new MusicViewModel(getActivity().getApplication());
-        musicData = musicViewModel.getFaved();
-        musicData.observe(this, new Observer<List<MusicUI>>() {
-            @Override
-            public void onChanged(List<MusicUI> musicUIS) {
-                musicList = musicUIS;
-                mAdapter.setMusics(musicList);
-            }
-        });
 
-        loginViewModel = new LoginViewModel(getActivity().getApplication());
-        loginResultLiveData = loginViewModel.getLoginResult();
-        loginResultLiveData.observe(this, new Observer<LoginResult>() {
-            @Override
-            public void onChanged(LoginResult loginResult) {
-                if(loginResult.getSuccess() != null) {
-                    currentUser = loginResult.getSuccess();
-                    Log.d("#######", currentUser.toString());
-                    updateUserView();
+        String username = getArguments() != null ? getArguments().getString("userId") : null;
+
+        musicViewModel = new MusicViewModel(Objects.requireNonNull(getActivity()).getApplication());
+        loginViewModel = new LoginViewModel(Objects.requireNonNull(getActivity()).getApplication());
+
+        if(username != null) {
+            currentUser = loginViewModel.getUser(username);
+
+            LiveData<List<MusicUI>> musicData = musicViewModel.getFaved(currentUser.userName);
+            musicData.observe(this, new Observer<List<MusicUI>>() {
+                @Override
+                public void onChanged(List<MusicUI> musicUIS) {
+                    // Used for deletion and specific actions
+                    musicList = musicUIS;
+                    mAdapter.setMusics(musicList);
                 }
-            }
-        });
-
+            });
+        }
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.account_fragment, container, false);
 
-        userAvatar = rootView.findViewById(R.id.account_avatar);
-        userName = rootView.findViewById(R.id.account_name);
+        // UI elements
+        CircleImageView userAvatar = rootView.findViewById(R.id.account_avatar);
+        TextView userName = rootView.findViewById(R.id.account_name);
 
-        updateUserView();
+        Button logoutButton = rootView.findViewById(R.id.logout);
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loginViewModel.logout();
+                Intent mainActivityIntent = new Intent(Objects.requireNonNull(getActivity()).getApplicationContext(), LoginActivity.class);
+                startActivity(mainActivityIntent);
+                getActivity().finish();
+            }
+        });
 
-        RecyclerView recyclerView = rootView.findViewById(R.id.faved_list);
+        if(currentUser != null) {
+            // Update user
+            RecyclerView recyclerView = rootView.findViewById(R.id.faved_list);
+            mAdapter = new MusicAdapter(getContext(), this);
+            recyclerView.setAdapter(mAdapter);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mAdapter = new MusicAdapter(getContext(), this);
-        recyclerView.setAdapter(mAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            // Update user UI
+            userName.setText(getString(R.string.name_field, currentUser.firstName, currentUser.lastName));
+            Picasso.get().load(currentUser.picPath).into(userAvatar);
+        } else {
+            userName.setText(getString(R.string.name_field, "no", "user"));
+        }
 
         FloatingActionButton fabCancel = rootView.findViewById(R.id.fab_edit);
         fabCancel.setOnClickListener(new View.OnClickListener() {
@@ -97,19 +107,6 @@ public class AccountFragment extends Fragment implements MusicClickListener {
             }
         });
         return rootView;
-    }
-
-    public void updateUserView(){
-        if(userName != null && userAvatar != null) {
-            if(currentUser != null) {
-                Log.d("#########", currentUser.toString());
-
-                userName.setText(getString(R.string.name_field, currentUser.firstName, currentUser.lastName));
-                Picasso.get().load(currentUser.picPath).into(userAvatar);
-            } else {
-                userName.setText(getString(R.string.name_field, "default", "name"));
-            }
-        }
     }
 
     @Override
@@ -122,7 +119,7 @@ public class AccountFragment extends Fragment implements MusicClickListener {
     public void onFavouriteClick(View v, int position) {
         // We have to delete it from the list
         MusicUI music = musicList.get(position);
-        musicViewModel.deleteFav(music.id);
+        musicViewModel.deleteFav(music.id, currentUser.userName);
         music.fav = 0;
         musicList.remove(music);
         mAdapter.setMusics(musicList);

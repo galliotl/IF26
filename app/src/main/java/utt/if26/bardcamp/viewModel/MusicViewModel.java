@@ -16,9 +16,9 @@ public class MusicViewModel extends ViewModel {
     public MusicViewModel(Application application) {
         repository = new Repository(application);
     }
-    public LiveData<List<MusicUI>> getFeed() {return repository.getFeed();}
-    public LiveData<List<MusicUI>> getFaved() {return repository.getFaved();}
+    public LiveData<List<MusicUI>> getFeed(String username) {return repository.getFeed(username);}
+    public LiveData<List<MusicUI>> getFaved(String username) {return repository.getFaved(username);}
 
-    public void insertFav(int mid) {repository.insertFav(mid);}
-    public void deleteFav(int mid) {repository.deleteFav(mid);}
+    public void insertFav(int mid, String username) {repository.insertFav(mid, username);}
+    public void deleteFav(int mid, String username) {repository.deleteFav(mid, username);}
 }

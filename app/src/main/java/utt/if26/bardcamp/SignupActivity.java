@@ -1,16 +1,8 @@
 package utt.if26.bardcamp;
 
 import android.app.Activity;
-
-import androidx.lifecycle.Observer;
-
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -22,36 +14,41 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+
 import utt.if26.bardcamp.db.Entity.User;
 import utt.if26.bardcamp.ui.login.LoginFormState;
 import utt.if26.bardcamp.util.LoginResult;
 import utt.if26.bardcamp.viewModel.LoginViewModel;
 
-public class LoginActivity extends AppCompatActivity {
-
+public class SignupActivity extends AppCompatActivity {
     private LoginViewModel loginViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_signup);
         loginViewModel = new LoginViewModel(this.getApplication());
 
-        final EditText usernameEditText = findViewById(R.id.username);
-        final EditText passwordEditText = findViewById(R.id.password);
-        final Button loginButton = findViewById(R.id.login);
-        final Button signupButton = findViewById(R.id.go_to_signup);
-        final ProgressBar loadingProgressBar = findViewById(R.id.loading);
+        final EditText usernameEditText = findViewById(R.id.username_signup);
+        final EditText passwordEditText = findViewById(R.id.password_signup);
+        final EditText nomEditText = findViewById(R.id.nom_signup);
+        final EditText prenomEditText = findViewById(R.id.prenom_signup);
+        final Button signupButton = findViewById(R.id.signup);
+        final Button loginButton =findViewById(R.id.go_to_login);
+        final ProgressBar loadingProgressBar = findViewById(R.id.loading_signup);
 
-        signupButton.setOnClickListener(new View.OnClickListener() {
+        loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent mainActivityIntent = new Intent(getApplicationContext(), SignupActivity.class);
+                Intent mainActivityIntent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(mainActivityIntent);
                 finish();
             }
         });
-
 
         loginViewModel.getLoginFormState().observe(this, new Observer<LoginFormState>() {
             @Override
@@ -59,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (loginFormState == null) {
                     return;
                 }
-                loginButton.setEnabled(loginFormState.isDataValid());
+                signupButton.setEnabled(loginFormState.isDataValid());
                 if (loginFormState.getUsernameError() != null) {
                     usernameEditText.setError(getString(loginFormState.getUsernameError()));
                 }
@@ -77,7 +74,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 loadingProgressBar.setVisibility(View.GONE);
                 if (loginResult.getError() != null) {
-                    showLoginFailed(loginResult.getError());
+                    showSignupFailed(loginResult.getError());
                 }
                 if (loginResult.getSuccess() != null) {
                     updateUiWithUser(loginResult.getSuccess());
@@ -103,6 +100,7 @@ public class LoginActivity extends AppCompatActivity {
                         passwordEditText.getText().toString());
             }
         };
+
         usernameEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.addTextChangedListener(afterTextChangedListener);
         passwordEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -117,27 +115,32 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 loadingProgressBar.setVisibility(View.VISIBLE);
-                loginViewModel.login(usernameEditText.getText().toString(),
-                        passwordEditText.getText().toString());
+                String username = usernameEditText.getText().toString();
+                String psw = passwordEditText.getText().toString();
+                String nom = nomEditText.getText().toString();
+                String prenom = prenomEditText.getText().toString();
+                User user = new User(username, prenom, nom, psw);
+                loginViewModel.signup(user);
             }
         });
+
     }
 
     private void updateUiWithUser(User model) {
         String welcome = getString(R.string.welcome) + model.firstName;
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
 
-        //Complete and destroy login activity once successful
+        //Complete and destroy signup activity once successful
         Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(mainActivityIntent);
         finish();
     }
 
-    private void showLoginFailed(@StringRes Integer errorString) {
+    private void showSignupFailed(@StringRes Integer errorString) {
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_SHORT).show();
     }
 }

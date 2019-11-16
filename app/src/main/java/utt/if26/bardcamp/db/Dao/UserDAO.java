@@ -3,7 +3,6 @@ package utt.if26.bardcamp.db.Dao;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import java.util.List;
@@ -13,11 +12,8 @@ import utt.if26.bardcamp.db.Entity.User;
 
 @Dao
 public interface UserDAO {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert()
     long insert(User user);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long[] insert(User... users);
 
     @Query("DELETE FROM "+ AppDBTable.Favourite.TABLE_NAME)
     void deleteAll();

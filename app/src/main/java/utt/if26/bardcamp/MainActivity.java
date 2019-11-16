@@ -23,7 +23,6 @@ import utt.if26.bardcamp.viewModel.LoginViewModel;
 
 public class MainActivity extends AppCompatActivity {
 
-    BottomNavigationView bottomNavigationView;
     User user;
     LiveData<LoginResult> loginResult;
     LoginViewModel loginViewModel;
@@ -37,13 +36,16 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-
         loginResult.observe(this, new Observer<LoginResult>() {
             @Override
             public void onChanged(LoginResult loginResult) {
                 if(loginResult.getSuccess() != null) {
                     user = loginResult.getSuccess();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("userId", user.userName);
+                    Fragment feed = new FeedFragment();
+                    feed.setArguments(bundle);
+                    loadFragment(feed);
                 } else {
                     user = null;
                     Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
@@ -54,34 +56,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         this.configureBottomView();
-
-        loadFragment(new FeedFragment());
     }
 
     private void configureBottomView(){
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Fragment fragment;
-                Bundle bundle;
-                switch (item.getItemId()) {
-                    case R.id.action_feed:
-                        bundle = new Bundle();
-                        if(user != null) bundle.putString("userId", user.userName);
-                        fragment = new FeedFragment();
-                        fragment.setArguments(bundle);
-                        loadFragment(fragment);
-                        return true;
-                    case R.id.action_music:
-                        fragment = new MusicFragment();
-                        loadFragment(fragment);
-                        return true;
-                    case R.id.action_account:
-                        bundle = new Bundle();
-                        if(user != null) bundle.putString("userId", user.userName);
-                        fragment = new AccountFragment();
-                        loadFragment(fragment);
-                        return true;
+                if(user != null) {
+                    Fragment fragment;
+                    Bundle bundle;
+                    switch (item.getItemId()) {
+                        case R.id.action_feed:
+                            bundle = new Bundle();
+                            bundle.putString("userId", user.userName);
+                            fragment = new FeedFragment();
+                            fragment.setArguments(bundle);
+                            loadFragment(fragment);
+                            return true;
+                        case R.id.action_music:
+                            fragment = new MusicFragment();
+                            loadFragment(fragment);
+                            return true;
+                        case R.id.action_account:
+                            bundle = new Bundle();
+                            bundle.putString("userId", user.userName);
+                            fragment = new AccountFragment();
+                            fragment.setArguments(bundle);
+                            loadFragment(fragment);
+                            return true;
+                    }
                 }
                 return false;
             }
