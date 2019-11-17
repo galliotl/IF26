@@ -13,5 +13,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Change build rights
+      run: chown -xr ./gradlew
     - name: Build with Gradle
       run: ./gradlew build
