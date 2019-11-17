@@ -2,14 +2,22 @@ package utt.if26.bardcamp.db.Entity;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import utt.if26.bardcamp.db.AppDBTable;
 
+import static androidx.room.ForeignKey.CASCADE;
+
 
 @Entity(tableName = AppDBTable.Music.TABLE_NAME,
+        foreignKeys = @ForeignKey(
+                onDelete = CASCADE,
+                entity = User.class,
+                parentColumns = AppDBTable.User._ID,
+                childColumns = AppDBTable.Music.COLUMN_ARTIST),
         indices = {@Index(AppDBTable.Music.COLUMN_ARTIST)}
         )
 public class Music {

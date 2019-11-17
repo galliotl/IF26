@@ -9,9 +9,12 @@ import androidx.room.PrimaryKey;
 
 import utt.if26.bardcamp.db.AppDBTable;
 
+import static androidx.room.ForeignKey.CASCADE;
+
 @Entity(tableName = AppDBTable.Favourite.TABLE_NAME,
         foreignKeys = {
                 @ForeignKey(
+                        onDelete = CASCADE,
                         entity = User.class,
                         parentColumns = AppDBTable.User._ID,
                         childColumns = AppDBTable.Favourite.COLUMN_USER),

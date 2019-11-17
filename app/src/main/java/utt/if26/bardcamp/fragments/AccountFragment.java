@@ -67,7 +67,7 @@ public class AccountFragment extends Fragment implements MusicClickListener {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.account_fragment, container, false);
 
         // UI elements
@@ -95,6 +95,21 @@ public class AccountFragment extends Fragment implements MusicClickListener {
             // Update user UI
             userName.setText(getString(R.string.name_field, currentUser.firstName, currentUser.lastName));
             Picasso.get().load(currentUser.picPath).into(userAvatar);
+
+            // User deletion
+            Button deleteUser = rootView.findViewById(R.id.deleteAccount);
+            deleteUser.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(loginViewModel.deleteAccount(currentUser.userName)){
+                        Intent mainActivityIntent = new Intent(Objects.requireNonNull(getActivity()).getApplicationContext(), LoginActivity.class);
+                        startActivity(mainActivityIntent);
+                        getActivity().finish();
+                    } else {
+                        Toast.makeText(getContext(), "Could not remove account", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         } else {
             userName.setText(getString(R.string.name_field, "no", "user"));
         }

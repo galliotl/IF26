@@ -6,8 +6,11 @@ import android.os.AsyncTask;
 import androidx.lifecycle.LiveData;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import utt.if26.bardcamp.db.AppDB;
+import utt.if26.bardcamp.db.Dao.FavDAO;
+import utt.if26.bardcamp.db.Dao.MusicDAO;
 import utt.if26.bardcamp.db.Dao.UserDAO;
 import utt.if26.bardcamp.db.dataSource.LoginDataSource;
 import utt.if26.bardcamp.db.Entity.User;
@@ -16,13 +19,16 @@ import utt.if26.bardcamp.util.Result;
 public class LoginRepository {
 
     private UserDAO userDAO;
-
+    private MusicDAO musicDAO;
+    private FavDAO favDAO;
     private LoginDataSource loginDataSource;
     private LiveData<String> userId;
 
     public LoginRepository(Application application) {
         AppDB db = AppDB.getDatabase(application);
         userDAO = db.userDAO();
+        favDAO = db.favDAO();
+        musicDAO = db.musicDAO();
         loginDataSource = new LoginDataSource(application.getApplicationContext());
         userId = loginDataSource.getUserId();
     }
@@ -88,6 +94,19 @@ public class LoginRepository {
         }
     }
 
+    public Boolean deleteUser(String username) {
+        try {
+            if(new deleteUserAsyncTask(userDAO, favDAO, musicDAO).execute(username).get()) {
+                logout();
+                return true;
+            }
+            else return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private static class insertUserAsyncTask extends AsyncTask<User, Void, Boolean> {
 
         private UserDAO mAsyncTaskDao;
@@ -106,6 +125,33 @@ public class LoginRepository {
             }
         }
     }
+
+    private static class deleteUserAsyncTask extends AsyncTask<String, Void, Boolean> {
+
+        private UserDAO mAsyncTaskDao;
+        private FavDAO mAsyncTaskDaoFav;
+        private MusicDAO mAsyncTaskDaoMusic;
+
+        deleteUserAsyncTask(UserDAO dao, FavDAO favDAO, MusicDAO musicDAO) {
+            mAsyncTaskDao = dao;
+            mAsyncTaskDaoMusic = musicDAO;
+            mAsyncTaskDaoFav = favDAO;
+        }
+
+        @Override
+        protected Boolean doInBackground(final String... params) {
+            try {
+                mAsyncTaskDao.delete(params[0]);
+                mAsyncTaskDaoFav.deleteWithUser(params[0]);
+                mAsyncTaskDaoMusic.deleteWithUser(params[0]);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    }
+
 
     private static class getUserAsyncTask extends AsyncTask<String, Void, User> {
         UserDAO userDAO;
