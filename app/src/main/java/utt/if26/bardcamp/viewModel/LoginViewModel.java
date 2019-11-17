@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import android.app.Application;
+import android.text.BoringLayout;
 import android.util.Patterns;
 
 import java.io.IOException;
@@ -30,6 +31,10 @@ public class LoginViewModel extends ViewModel {
 
     public User getUser(String username) {
         return repository.getUser(username);
+    }
+
+    public Boolean deleteAccount(String username) {
+        return repository.deleteUser(username);
     }
 
     public LiveData<LoginFormState> getLoginFormState() {

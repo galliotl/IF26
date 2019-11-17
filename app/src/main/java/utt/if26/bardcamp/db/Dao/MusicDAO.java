@@ -20,6 +20,9 @@ public interface MusicDAO {
     @Query("DELETE FROM "+ AppDBTable.Music.TABLE_NAME)
     void deleteAll();
 
+    @Query("DELETE FROM "+ AppDBTable.Music.TABLE_NAME+" WHERE "+AppDBTable.Music.COLUMN_ARTIST+"=:username")
+    void deleteWithUser(String username);
+
     /**
      * This functions returns all the musicUI in the database, with the one a given user has liked
      * @return LiveData List MusicUI

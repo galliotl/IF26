@@ -21,6 +21,9 @@ public interface FavDAO {
     @Query("DELETE FROM "+ AppDBTable.Favourite.TABLE_NAME)
     void deleteAll();
 
+    @Query("DELETE FROM "+ AppDBTable.Favourite.TABLE_NAME+" WHERE "+AppDBTable.Favourite.COLUMN_USER+"=:username")
+    void deleteWithUser(String username);
+
     @Query("SELECT m."+AppDBTable.Music._ID+" as "+AppDBTable.Music._ID
             + ", m."+AppDBTable.Music.COLUMN_TITLE+" as "+AppDBTable.Music.COLUMN_TITLE
             + ", m."+AppDBTable.Music.COLUMN_PIC_PATH+" as "+AppDBTable.Music.COLUMN_PIC_PATH
