@@ -27,7 +27,9 @@ public class Repository {
         musicDAO = db.musicDAO();
     }
 
-    public void insertMusic (Music music) {new insertMusicAsyncTask(musicDAO).execute(music);}
+    public void insertMusic (Music music) {
+        new insertMusicAsyncTask(musicDAO).execute(music);
+    }
 
     public LiveData<List<MusicUI>> getFaved(String username) {
         return favDAO.getFavedMusics(username);

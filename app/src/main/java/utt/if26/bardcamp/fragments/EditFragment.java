@@ -26,37 +26,6 @@ public class EditFragment extends Fragment {
         final EditText firstName = rootView.findViewById(R.id.edit_first_name);
         final EditText lastName = rootView.findViewById(R.id.edit_name);
         final EditText editPath = rootView.findViewById(R.id.edit_pic_path);
-/*
-        if(mainActivity.getUserFromDB() != null) {
-            User user = mainActivity.getUserFromDB();
-            CircleImageView avatar = rootView.findViewById(R.id.edit_avatar);
-            firstName.setText(mainActivity.getUserFromDB().getFirstName());
-            lastName.setText(mainActivity.getUserFromDB().getLastName());
-            editPath.setText(mainActivity.getUserFromDB().getPicPath());
-            Picasso.get().load(user.getPicPath()).into(avatar);
-        }
-
-
-        FloatingActionButton fabCancel = rootView.findViewById(R.id.fab_close);
-        fabCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mainActivity.loadFragment(new AccountFragment());
-            }
-        });
-
-        Button validate = rootView.findViewById(R.id.validate_edit_btn);
-
-        validate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mainActivity.getUserFromDB().setFirstName(firstName.getText().toString());
-                mainActivity.getUserFromDB().setLastName(lastName.getText().toString());
-                mainActivity.getUserFromDB().setPicPath(editPath.getText().toString());
-                Toast.makeText(mainActivity, "Updated!", Toast.LENGTH_SHORT).show();
-                mainActivity.loadFragment(new AccountFragment());
-            }
-        });*/
         return rootView;
     }
 }
