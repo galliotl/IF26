@@ -1,5 +1,6 @@
 package utt.if26.bardcamp.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -9,22 +10,30 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.widget.ImageButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.List;
 import java.util.Objects;
 
 import utt.if26.bardcamp.Interface.MusicClickListener;
+import utt.if26.bardcamp.NewMusicActivity;
 import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.adapter.MusicAdapter;
+import utt.if26.bardcamp.db.Entity.Music;
 import utt.if26.bardcamp.model.MusicUI;
 import utt.if26.bardcamp.viewModel.MusicViewModel;
 
+import static android.app.Activity.RESULT_OK;
+
 public class FeedFragment extends Fragment implements MusicClickListener {
+    private final int REQUEST_CODE = 10;
     private MusicAdapter mAdapter;
     private List<MusicUI> musicList;
     private MusicViewModel musicViewModel;
@@ -55,7 +64,33 @@ public class FeedFragment extends Fragment implements MusicClickListener {
         mAdapter.setMusics(musicList);
         recyclerView.setAdapter(mAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        FloatingActionButton fab_music = rootView.findViewById(R.id.fab_new_music);
+        fab_music.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), NewMusicActivity.class);
+                startActivityForResult(intent, REQUEST_CODE);
+            }
+        });
+
         return rootView;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                String title = data.getStringExtra("title");
+                Log.d("STATE","###############"+title);
+                String filePath = data.getStringExtra("filePath");
+                if (title != null && filePath != null) {
+                    Music music = new Music(title, username, filePath);
+                    musicViewModel.insertMusic(music);
+                    Toast.makeText(getContext(), "Music added!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 
     @Override

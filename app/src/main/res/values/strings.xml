@@ -33,4 +33,8 @@
     <string name="login_not_known">"User not known"</string>
     <string name="signup_fail">Could not sign up, username might be taken already</string>
     <string name="logout">Logout</string>
+
+    <!-- New music -->
+    <string name="music_name">Title</string>
+
 </resources>

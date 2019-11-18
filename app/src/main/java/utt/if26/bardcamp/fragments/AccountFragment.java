@@ -1,5 +1,7 @@
 package utt.if26.bardcamp.fragments;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -101,20 +103,33 @@ public class AccountFragment extends Fragment implements MusicClickListener {
             deleteUser.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(loginViewModel.deleteAccount(currentUser.userName)){
-                        Intent mainActivityIntent = new Intent(Objects.requireNonNull(getActivity()).getApplicationContext(), LoginActivity.class);
-                        startActivity(mainActivityIntent);
-                        getActivity().finish();
-                    } else {
-                        Toast.makeText(getContext(), "Could not remove account", Toast.LENGTH_SHORT).show();
-                    }
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+                    alertDialogBuilder.setMessage("Are you sure you want to delete the account?");
+                    alertDialogBuilder.setPositiveButton("Yes",
+                            new DialogInterface.OnClickListener(){
+
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    if(loginViewModel.deleteAccount(currentUser.userName)){
+                                        Intent mainActivityIntent = new Intent(Objects.requireNonNull(getActivity()).getApplicationContext(), LoginActivity.class);
+                                        startActivity(mainActivityIntent);
+                                        getActivity().finish();
+                                    } else {
+                                        Toast.makeText(getContext(), "Could not remove account", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                    alertDialogBuilder.setNegativeButton("No",
+                            null);
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
                 }
             });
         } else {
             userName.setText(getString(R.string.name_field, "no", "user"));
         }
 
-        FloatingActionButton fabCancel = rootView.findViewById(R.id.fab_edit);
+        FloatingActionButton fabCancel = rootView.findViewById(R.id.fab_new_music);
         fabCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
