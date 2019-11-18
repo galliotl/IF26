@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import utt.if26.bardcamp.Music.Music;
 import utt.if26.bardcamp.db.Entity.User;
 import utt.if26.bardcamp.fragments.AccountFragment;
 import utt.if26.bardcamp.fragments.FeedFragment;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     User user;
     LiveData<LoginResult> loginResult;
     LoginViewModel loginViewModel;
+    static public Music musique;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +35,11 @@ public class MainActivity extends AppCompatActivity {
 
         loginViewModel = new LoginViewModel(this.getApplication());
         loginResult = loginViewModel.getLoginResult();
-
         setContentView(R.layout.activity_main);
+
+        musique = new Music();
+        musique.onCreate(this);
+
 
         loginResult.observe(this, new Observer<LoginResult>() {
             @Override
@@ -93,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadFragment(Fragment fragment) {
-        // load fragment
+         //load fragment
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.activity_main_frame_layout, fragment);
         transaction.addToBackStack(null);
