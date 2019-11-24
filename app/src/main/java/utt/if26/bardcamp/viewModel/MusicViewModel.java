@@ -23,4 +23,5 @@ public class MusicViewModel extends ViewModel {
     public void insertMusic(Music music) {repository.insertMusic(music);}
     public void insertFav(int mid, String username) {repository.insertFav(mid, username);}
     public void deleteFav(int mid, String username) {repository.deleteFav(mid, username);}
+    public void deleteMusic(int mid) {repository.deleteMusic(mid);}
 }

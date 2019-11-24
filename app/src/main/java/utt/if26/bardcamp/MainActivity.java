@@ -14,7 +14,6 @@ import androidx.lifecycle.Observer;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import utt.if26.bardcamp.Music.Music;
 import utt.if26.bardcamp.db.Entity.User;
 import utt.if26.bardcamp.fragments.AccountFragment;
 import utt.if26.bardcamp.fragments.FeedFragment;
@@ -27,40 +26,14 @@ public class MainActivity extends AppCompatActivity {
     User user;
     LiveData<LoginResult> loginResult;
     LoginViewModel loginViewModel;
-    static public Music musique;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        loginViewModel = new LoginViewModel(this.getApplication());
-        loginResult = loginViewModel.getLoginResult();
         setContentView(R.layout.activity_main);
 
-        musique = new Music();
-        musique.onCreate(this);
-
-
-        loginResult.observe(this, new Observer<LoginResult>() {
-            @Override
-            public void onChanged(LoginResult loginResult) {
-                if(loginResult.getSuccess() != null) {
-                    user = loginResult.getSuccess();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("userId", user.userName);
-                    Fragment feed = new FeedFragment();
-                    feed.setArguments(bundle);
-                    loadFragment(feed);
-                } else {
-                    user = null;
-                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                    Toast.makeText(getApplicationContext(), "User was disconnected", Toast.LENGTH_SHORT).show();
-                    startActivity(intent);
-                    finish();
-                }
-            }
-        });
-        this.configureBottomView();
+        configureLogin();
+        configureBottomView();
     }
 
     private void configureBottomView(){
@@ -93,6 +66,31 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 return false;
+            }
+        });
+    }
+
+    private void configureLogin() {
+        loginViewModel = new LoginViewModel(this.getApplication());
+        loginResult = loginViewModel.getLoginResult();
+
+        loginResult.observe(this, new Observer<LoginResult>() {
+            @Override
+            public void onChanged(LoginResult loginResult) {
+                if(loginResult.getSuccess() != null) {
+                    user = loginResult.getSuccess();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("userId", user.userName);
+                    Fragment feed = new FeedFragment();
+                    feed.setArguments(bundle);
+                    loadFragment(feed);
+                } else {
+                    user = null;
+                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                    Toast.makeText(getApplicationContext(), "User was disconnected", Toast.LENGTH_SHORT).show();
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
     }

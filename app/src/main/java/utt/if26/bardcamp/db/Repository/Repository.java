@@ -31,6 +31,10 @@ public class Repository {
         new insertMusicAsyncTask(musicDAO).execute(music);
     }
 
+    public void deleteMusic(int mid) {
+        new deleteMusicAsyncTask(musicDAO).execute(mid);
+    }
+
     public LiveData<List<MusicUI>> getFaved(String username) {
         return favDAO.getFavedMusics(username);
     }
@@ -116,4 +120,19 @@ public class Repository {
             return null;
         }
     }
+
+    private static class deleteMusicAsyncTask extends AsyncTask<Integer, Void, Void> {
+        private MusicDAO mAsyncTaskDao;
+
+        deleteMusicAsyncTask(MusicDAO dao) {
+            mAsyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(Integer... strings) {
+            mAsyncTaskDao.delete(strings[0]);
+            return null;
+        }
+    }
+
 }

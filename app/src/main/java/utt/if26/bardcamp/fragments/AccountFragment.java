@@ -154,4 +154,27 @@ public class AccountFragment extends Fragment implements MusicClickListener {
         musicList.remove(music);
         mAdapter.setMusics(musicList);
     }
+
+    @Override
+    public boolean onLongPressed(View v, final int position) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        alertDialogBuilder.setMessage("Do you want to remove it from favourites?");
+        alertDialogBuilder.setPositiveButton("Yes",
+                new DialogInterface.OnClickListener(){
+
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        MusicUI music = musicList.get(position);
+                        musicViewModel.deleteFav(music.id, currentUser.userName);
+                        music.fav = 0;
+                        musicList.remove(music);
+                        mAdapter.setMusics(musicList);
+                    }
+                });
+        alertDialogBuilder.setNegativeButton("No",
+                null);
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+        return true;
+    }
 }

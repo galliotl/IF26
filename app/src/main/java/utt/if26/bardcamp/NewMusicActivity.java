@@ -28,12 +28,14 @@ public class NewMusicActivity extends AppCompatActivity {
         fabDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(titleTV.getText() != null && filePath != null) {
+                if(!titleTV.getText().toString().equals("") && filePath != null) {
                     Intent returnIntent = new Intent();
                     returnIntent.putExtra("title", titleTV.getText().toString());
                     returnIntent.putExtra("filePath", filePath);
                     setResult(Activity.RESULT_OK,returnIntent);
                     finish();
+                } else {
+                    Toast.makeText(getApplicationContext(), "One of the fields isn't filled", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -52,9 +54,17 @@ public class NewMusicActivity extends AppCompatActivity {
         btnMusic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null);
-                intent.setType("audio/*");
-                startActivityForResult(intent, REQUEST_CODE);
+                Intent getIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                getIntent.setType("audio/*");
+
+
+                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                pickIntent.setType("audio/*");
+
+                Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
+
+                startActivityForResult(chooserIntent, REQUEST_CODE);
             }
         });
     }
@@ -64,8 +74,7 @@ public class NewMusicActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                filePath = data.getData().getPath();
-                Toast.makeText(getApplicationContext(), filePath, Toast.LENGTH_SHORT).show();
+                filePath = data.getData().toString();
             }
         }
     }

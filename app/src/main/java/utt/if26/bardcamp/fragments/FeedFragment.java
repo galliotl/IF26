@@ -1,5 +1,7 @@
 package utt.if26.bardcamp.fragments;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -10,7 +12,6 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.widget.ImageButton;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -82,7 +84,6 @@ public class FeedFragment extends Fragment implements MusicClickListener {
         if (requestCode == REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 String title = data.getStringExtra("title");
-                Log.d("STATE","###############"+title);
                 String filePath = data.getStringExtra("filePath");
                 if (title != null && filePath != null) {
                     Music music = new Music(title, username, filePath);
@@ -96,7 +97,12 @@ public class FeedFragment extends Fragment implements MusicClickListener {
     @Override
     public void onClick(View v, int position) {
         Toast.makeText(v.getContext(), "music will be played", Toast.LENGTH_SHORT).show();
-        // TODO: play the music
+
+        // Create a playlist composed from the element clicked to the end
+        List<MusicUI> playlist = new ArrayList<>();
+        for (int i = position; i < musicList.size(); i++){
+            playlist.add(musicList.get(i));
+        }
     }
 
     @Override
@@ -111,5 +117,27 @@ public class FeedFragment extends Fragment implements MusicClickListener {
             music.fav = 1;
             ((ImageButton) v).setImageResource(R.drawable.favorite_24dp);
         }
+    }
+
+    @Override
+    public boolean onLongPressed(View v, final int position) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        alertDialogBuilder.setMessage("Do you want to delete the song?");
+        alertDialogBuilder.setPositiveButton("Yes",
+                new DialogInterface.OnClickListener(){
+
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        musicViewModel.deleteMusic(musicList.get(position).id);
+                        Toast.makeText(getContext(), "Music removed", Toast.LENGTH_SHORT).show();
+                        musicList.remove(position);
+                        mAdapter.setMusics(musicList);
+                    }
+                });
+        alertDialogBuilder.setNegativeButton("No",
+                null);
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+        return true;
     }
 }

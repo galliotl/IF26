@@ -29,7 +29,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
         public ImageView avatar;
         public ImageButton favourite;
 
-        public MusicViewHolder(View v) {
+        public MusicViewHolder(final View v) {
             super(v);
             title = v.findViewById(R.id.music_title);
             artist = v.findViewById(R.id.music_artist);
@@ -40,6 +40,14 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
                 @Override
                 public void onClick(View view) {
                     mcl.onClick(view, getAdapterPosition());
+                }
+            });
+
+            v.setOnLongClickListener(new View.OnLongClickListener() {
+
+                @Override
+                public boolean onLongClick(View view) {
+                    return mcl.onLongPressed(view, getAdapterPosition());
                 }
             });
 

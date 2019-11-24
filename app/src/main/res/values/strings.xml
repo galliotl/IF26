@@ -37,4 +37,8 @@
     <!-- New music -->
     <string name="music_name">Title</string>
 
+    <!-- Variables -->
+    <string name="broadcast_current_timer">timer_broadcast</string>
+    <string name="broadcast_current_song">song_broadcast</string>
+    <string name="broadcast_play_pause">isplaying_broadcast</string>
 </resources>
