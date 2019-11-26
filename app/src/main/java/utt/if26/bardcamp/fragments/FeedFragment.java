@@ -25,11 +25,12 @@ import java.util.List;
 import java.util.Objects;
 
 import utt.if26.bardcamp.Interface.MusicClickListener;
+import utt.if26.bardcamp.MainActivity;
 import utt.if26.bardcamp.NewMusicActivity;
 import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.adapter.MusicAdapter;
 import utt.if26.bardcamp.db.Entity.Music;
-import utt.if26.bardcamp.model.MusicUI;
+import utt.if26.bardcamp.model.MusicData;
 import utt.if26.bardcamp.viewModel.MusicViewModel;
 
 import static android.app.Activity.RESULT_OK;
@@ -37,8 +38,9 @@ import static android.app.Activity.RESULT_OK;
 public class FeedFragment extends Fragment implements MusicClickListener {
     private final int REQUEST_CODE = 10;
     private MusicAdapter mAdapter;
-    private List<MusicUI> musicList;
+    private List<MusicData> musicList;
     private MusicViewModel musicViewModel;
+    private MainActivity mainActivity;
     private String username;
 
     @Override
@@ -46,14 +48,15 @@ public class FeedFragment extends Fragment implements MusicClickListener {
         super.onCreate(savedInstanceState);
         musicViewModel = new MusicViewModel(Objects.requireNonNull(getActivity()).getApplication());
         username = getArguments() != null ? getArguments().getString("userId") : null;
-        LiveData<List<MusicUI>> musicData = musicViewModel.getFeed(username);
-        musicData.observe(this, new Observer<List<MusicUI>>() {
+        LiveData<List<MusicData>> musicData = musicViewModel.getFeed(username);
+        musicData.observe(this, new Observer<List<MusicData>>() {
             @Override
-            public void onChanged(List<MusicUI> musicUIS) {
-                musicList = musicUIS;
+            public void onChanged(List<MusicData> musicDatas) {
+                musicList = musicDatas;
                 mAdapter.setMusics(musicList);
             }
         });
+        mainActivity = (MainActivity) getActivity();
     }
 
     @Override
@@ -96,18 +99,18 @@ public class FeedFragment extends Fragment implements MusicClickListener {
 
     @Override
     public void onClick(View v, int position) {
-        Toast.makeText(v.getContext(), "music will be played", Toast.LENGTH_SHORT).show();
-
         // Create a playlist composed from the element clicked to the end
-        List<MusicUI> playlist = new ArrayList<>();
+        List<MusicData> playlist = new ArrayList<>();
         for (int i = position; i < musicList.size(); i++){
             playlist.add(musicList.get(i));
         }
+        mainActivity.getMusicService().playFromNewPlaylist(playlist);
+        Toast.makeText(getContext(), "clicked", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onFavouriteClick(View v, int position) {
-        MusicUI music = musicList.get(position);
+        MusicData music = musicList.get(position);
         if(music.fav != 0) {
             musicViewModel.deleteFav(music.id, username);
             music.fav = 0;

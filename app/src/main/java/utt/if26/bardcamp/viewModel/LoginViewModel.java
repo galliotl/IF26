@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import android.app.Application;
-import android.text.BoringLayout;
 import android.util.Patterns;
 
 import java.io.IOException;

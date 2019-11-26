@@ -23,16 +23,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import utt.if26.bardcamp.Interface.MusicClickListener;
 import utt.if26.bardcamp.LoginActivity;
+import utt.if26.bardcamp.MainActivity;
 import utt.if26.bardcamp.R;
 import utt.if26.bardcamp.adapter.MusicAdapter;
 import utt.if26.bardcamp.db.Entity.User;
-import utt.if26.bardcamp.model.MusicUI;
+import utt.if26.bardcamp.model.MusicData;
 import utt.if26.bardcamp.viewModel.LoginViewModel;
 import utt.if26.bardcamp.viewModel.MusicViewModel;
 
@@ -41,7 +43,8 @@ public class AccountFragment extends Fragment implements MusicClickListener {
     private MusicAdapter mAdapter;
     private MusicViewModel musicViewModel;
     private LoginViewModel loginViewModel;
-    private List<MusicUI> musicList;
+    private List<MusicData> musicList;
+    private MainActivity mainActivity;
     private User currentUser;
 
     @Override
@@ -56,16 +59,17 @@ public class AccountFragment extends Fragment implements MusicClickListener {
         if(username != null) {
             currentUser = loginViewModel.getUser(username);
 
-            LiveData<List<MusicUI>> musicData = musicViewModel.getFaved(currentUser.userName);
-            musicData.observe(this, new Observer<List<MusicUI>>() {
+            LiveData<List<MusicData>> musicData = musicViewModel.getFaved(currentUser.userName);
+            musicData.observe(this, new Observer<List<MusicData>>() {
                 @Override
-                public void onChanged(List<MusicUI> musicUIS) {
+                public void onChanged(List<MusicData> musicDatas) {
                     // Used for deletion and specific actions
-                    musicList = musicUIS;
+                    musicList = musicDatas;
                     mAdapter.setMusics(musicList);
                 }
             });
         }
+        mainActivity = (MainActivity) getActivity();
     }
 
     @Override
@@ -141,14 +145,18 @@ public class AccountFragment extends Fragment implements MusicClickListener {
 
     @Override
     public void onClick(View v, int position) {
-        Toast.makeText(v.getContext(), "music will be played", Toast.LENGTH_SHORT).show();
-        // TODO: play the music
+        // Create a playlist composed from the element clicked to the end
+        List<MusicData> playlist = new ArrayList<>();
+        for (int i = position; i < musicList.size(); i++){
+            playlist.add(musicList.get(i));
+        }
+        mainActivity.getMusicService().playFromNewPlaylist(playlist);
     }
 
     @Override
     public void onFavouriteClick(View v, int position) {
         // We have to delete it from the list
-        MusicUI music = musicList.get(position);
+        MusicData music = musicList.get(position);
         musicViewModel.deleteFav(music.id, currentUser.userName);
         music.fav = 0;
         musicList.remove(music);
@@ -164,7 +172,7 @@ public class AccountFragment extends Fragment implements MusicClickListener {
 
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        MusicUI music = musicList.get(position);
+                        MusicData music = musicList.get(position);
                         musicViewModel.deleteFav(music.id, currentUser.userName);
                         music.fav = 0;
                         musicList.remove(music);

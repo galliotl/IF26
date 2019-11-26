@@ -11,7 +11,7 @@ import java.util.List;
 
 import utt.if26.bardcamp.db.AppDBTable;
 import utt.if26.bardcamp.db.Entity.Favourite;
-import utt.if26.bardcamp.model.MusicUI;
+import utt.if26.bardcamp.model.MusicData;
 
 @Dao
 public interface FavDAO {
@@ -34,7 +34,7 @@ public interface FavDAO {
             + " FROM (SELECT * FROM "+AppDBTable.Favourite.TABLE_NAME+" WHERE "+AppDBTable.Favourite.COLUMN_USER+"=:userId) f"
             + " LEFT JOIN "+AppDBTable.Music.TABLE_NAME+" m ON m."+AppDBTable.Music._ID+" = f."+AppDBTable.Favourite.COLUMN_MUSIC
             + " LEFT JOIN "+AppDBTable.User.TABLE_NAME+" u ON u."+AppDBTable.User._ID+" = m."+AppDBTable.Music.COLUMN_ARTIST)
-    LiveData<List<MusicUI>> getFavedMusics(String userId);
+    LiveData<List<MusicData>> getFavedMusics(String userId);
 
     @Delete
     void delete(Favourite fav);

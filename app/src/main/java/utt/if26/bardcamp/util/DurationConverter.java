@@ -25,4 +25,8 @@ public class DurationConverter {
         }
         return finalString;
     }
+
+    public int percentageToMillis(int percentage, int totalDuration) {
+        return (int) (percentage * 0.01 * totalDuration);
+    }
 }

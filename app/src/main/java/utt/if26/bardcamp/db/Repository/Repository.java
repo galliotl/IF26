@@ -13,7 +13,7 @@ import utt.if26.bardcamp.db.Dao.FavDAO;
 import utt.if26.bardcamp.db.Dao.MusicDAO;
 import utt.if26.bardcamp.db.Entity.Favourite;
 import utt.if26.bardcamp.db.Entity.Music;
-import utt.if26.bardcamp.model.MusicUI;
+import utt.if26.bardcamp.model.MusicData;
 
 
 public class Repository {
@@ -35,12 +35,12 @@ public class Repository {
         new deleteMusicAsyncTask(musicDAO).execute(mid);
     }
 
-    public LiveData<List<MusicUI>> getFaved(String username) {
+    public LiveData<List<MusicData>> getFaved(String username) {
         return favDAO.getFavedMusics(username);
     }
 
-    public LiveData<List<MusicUI>> getFeed(String username) {
-        LiveData<List<MusicUI>> toReturn = null;
+    public LiveData<List<MusicData>> getFeed(String username) {
+        LiveData<List<MusicData>> toReturn = null;
         try {
             toReturn = new getFeedAsyncTask(musicDAO).execute(username).get();
         } catch (ExecutionException e) {
@@ -89,7 +89,7 @@ public class Repository {
         }
     }
 
-    private static class getFeedAsyncTask extends AsyncTask<String, Void, LiveData<List<MusicUI>>>{
+    private static class getFeedAsyncTask extends AsyncTask<String, Void, LiveData<List<MusicData>>>{
         MusicDAO musicDAO;
 
         public getFeedAsyncTask(MusicDAO musicDAO) {
@@ -97,7 +97,7 @@ public class Repository {
         }
 
         @Override
-        protected LiveData<List<MusicUI>> doInBackground(String... strings) {
+        protected LiveData<List<MusicData>> doInBackground(String... strings) {
             if(strings[0] == null) return musicDAO.getFeed();
             return musicDAO.getFeed(strings[0]);
         }

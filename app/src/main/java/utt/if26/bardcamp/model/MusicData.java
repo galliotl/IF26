@@ -1,10 +1,11 @@
 package utt.if26.bardcamp.model;
 
 import androidx.room.ColumnInfo;
+import androidx.room.Ignore;
 
 import utt.if26.bardcamp.db.AppDBTable;
 
-public class MusicUI {
+public class MusicData {
     // Music elements
     @ColumnInfo(name = AppDBTable.Music._ID)
     public int id;
@@ -28,4 +29,9 @@ public class MusicUI {
     // Fav
     @ColumnInfo(name = AppDBTable.Favourite._ID, defaultValue = "0")
     public int fav;
+
+    @Ignore()
+    public String toString() {
+        return title + ", " + firstName + " " + lastName;
+    }
 }

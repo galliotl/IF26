@@ -10,7 +10,7 @@ import java.util.List;
 
 import utt.if26.bardcamp.db.AppDBTable;
 import utt.if26.bardcamp.db.Entity.Music;
-import utt.if26.bardcamp.model.MusicUI;
+import utt.if26.bardcamp.model.MusicData;
 
 @Dao
 public interface MusicDAO {
@@ -28,7 +28,7 @@ public interface MusicDAO {
 
     /**
      * This functions returns all the musicUI in the database, with the one a given user has liked
-     * @return LiveData List MusicUI
+     * @return LiveData List MusicData
      */
     @Query("SELECT"
             // Projection
@@ -48,11 +48,11 @@ public interface MusicDAO {
             + " (SELECT * FROM "+AppDBTable.Favourite.TABLE_NAME
             + " WHERE "+AppDBTable.Favourite.COLUMN_USER+"=:userId) f"
             + " ON f."+AppDBTable.Favourite.COLUMN_MUSIC+"=m."+AppDBTable.Music._ID)
-    LiveData<List<MusicUI>> getFeed(String userId);
+    LiveData<List<MusicData>> getFeed(String userId);
 
     /**
      * This functions returns all the musicUI in the database, with no one liked
-     * @return LiveData List MusicUI
+     * @return LiveData List MusicData
      */
     @Query("SELECT"
             // Projection
@@ -72,5 +72,5 @@ public interface MusicDAO {
             + " (SELECT * FROM "+AppDBTable.Favourite.TABLE_NAME
             + " WHERE "+AppDBTable.Favourite.COLUMN_USER+"=\"fakeid\") f"
             + " ON f."+AppDBTable.Favourite.COLUMN_MUSIC+"=m."+AppDBTable.Music._ID)
-    LiveData<List<MusicUI>> getFeed();
+    LiveData<List<MusicData>> getFeed();
 }

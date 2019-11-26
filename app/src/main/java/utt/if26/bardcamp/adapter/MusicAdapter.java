@@ -16,11 +16,11 @@ import java.util.List;
 
 import utt.if26.bardcamp.Interface.MusicClickListener;
 import utt.if26.bardcamp.R;
-import utt.if26.bardcamp.model.MusicUI;
+import utt.if26.bardcamp.model.MusicData;
 
 public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHolder> {
     private final LayoutInflater mInflater;
-    private List<MusicUI> musics;
+    private List<MusicData> musics;
     private MusicClickListener mcl;
 
     public class MusicViewHolder extends RecyclerView.ViewHolder {
@@ -74,7 +74,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
 
     @Override
     public void onBindViewHolder(final MusicViewHolder holder, int position) {
-        final MusicUI music = musics.get(position);
+        final MusicData music = musics.get(position);
 
         Picasso.get().load(music.picPath).into(holder.avatar);
         holder.artist.setText(String.format(holder.itemView.getResources().getString(R.string.name_field), music.firstName, music.lastName));
@@ -82,7 +82,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.MusicViewHol
         holder.favourite.setImageResource(music.fav != 0 ? R.drawable.favorite_24dp : R.drawable.favorite_border_24dp);
     }
 
-    public void setMusics(List<MusicUI> musics) {
+    public void setMusics(List<MusicData> musics) {
         this.musics = musics;
         notifyDataSetChanged();
     }

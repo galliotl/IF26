@@ -1,7 +1,11 @@
 package utt.if26.bardcamp;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -18,6 +22,7 @@ import utt.if26.bardcamp.db.Entity.User;
 import utt.if26.bardcamp.fragments.AccountFragment;
 import utt.if26.bardcamp.fragments.FeedFragment;
 import utt.if26.bardcamp.fragments.MusicFragment;
+import utt.if26.bardcamp.service.MusicService;
 import utt.if26.bardcamp.util.LoginResult;
 import utt.if26.bardcamp.viewModel.LoginViewModel;
 
@@ -27,13 +32,47 @@ public class MainActivity extends AppCompatActivity {
     LiveData<LoginResult> loginResult;
     LoginViewModel loginViewModel;
 
+    private MusicService musicService;
+    private boolean bound = false;
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            musicService = ((MusicService.LocalBinder) service).getService();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+        }
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        bindToService();
         configureLogin();
         configureBottomView();
+    }
+
+    @Override
+    protected void onDestroy() {
+        unbindService(serviceConnection);
+        super.onDestroy();
+    }
+
+    public MusicService getMusicService() {
+        if(!bound) bindToService();
+        return musicService;
+    }
+
+    public void bindToService() {
+        Intent playerIntent = new Intent(this, MusicService.class);
+        bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     private void configureBottomView(){
