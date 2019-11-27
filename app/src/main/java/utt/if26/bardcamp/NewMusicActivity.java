@@ -57,10 +57,10 @@ public class NewMusicActivity extends AppCompatActivity {
                 Intent getIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 getIntent.setType("audio/*");
 
-                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                pickIntent.setType("audio/*");
+                Intent pickIntent = new Intent(Intent.ACTION_PICK);
+                pickIntent.setDataAndType(android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,"audio/*");
 
-                Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+                Intent chooserIntent = Intent.createChooser(getIntent, "Select Music");
                 chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
 
                 startActivityForResult(chooserIntent, REQUEST_CODE);

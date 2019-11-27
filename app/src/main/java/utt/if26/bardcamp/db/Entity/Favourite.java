@@ -19,6 +19,7 @@ import static androidx.room.ForeignKey.CASCADE;
                         parentColumns = AppDBTable.User._ID,
                         childColumns = AppDBTable.Favourite.COLUMN_USER),
                 @ForeignKey(
+                        onDelete = CASCADE,
                         entity = Music.class,
                         parentColumns = AppDBTable.Music._ID,
                         childColumns = AppDBTable.Favourite.COLUMN_MUSIC),

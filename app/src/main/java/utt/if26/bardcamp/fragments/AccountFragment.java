@@ -132,14 +132,6 @@ public class AccountFragment extends Fragment implements MusicClickListener {
         } else {
             userName.setText(getString(R.string.name_field, "no", "user"));
         }
-
-        FloatingActionButton fabCancel = rootView.findViewById(R.id.fab_new_music);
-        fabCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("sssssss", "Clicked");
-            }
-        });
         return rootView;
     }
 

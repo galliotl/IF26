@@ -7,6 +7,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
@@ -22,7 +23,7 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
     private final IBinder mBinder = new LocalBinder();
     private List<MusicData> playlist;
     private int currentPositionInPlaylist;
-    private MediaPlayer mediaPlayer;
+    private MediaPlayer mediaPlayer = new MediaPlayer();
     private int resumePosition;
     private MutableLiveData<MusicData> currentMusic = new MutableLiveData<>();
     private MutableLiveData<Boolean> isPlaying = new MutableLiveData<>();
@@ -154,9 +155,14 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
 
     private void playFromCurrentPosition() {
         if(mediaPlayer != null) mediaPlayer.release();
-        mediaPlayer = MediaPlayer.create(this, Uri.parse(playlist.get(currentPositionInPlaylist).path));
-        mediaPlayer.setOnCompletionListener(this);
-        playMedia();
+        try {
+            mediaPlayer = MediaPlayer.create(this, Uri.parse(playlist.get(currentPositionInPlaylist).path));
+            mediaPlayer.setOnCompletionListener(this);
+            playMedia();
+
+        } catch (NullPointerException e) {
+            Toast.makeText(this, "Cannot read this file", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -183,4 +189,3 @@ public class MusicService extends Service implements MediaPlayer.OnCompletionLis
         if(mediaPlayer != null) mediaPlayer.seekTo(milliseconds);
     }
 }
-
