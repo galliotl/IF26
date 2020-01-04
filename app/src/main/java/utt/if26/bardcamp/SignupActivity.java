@@ -39,7 +39,16 @@ public class SignupActivity extends AppCompatActivity {
         final EditText prenomEditText = findViewById(R.id.prenom_signup);
         final Button signupButton = findViewById(R.id.signup);
         final Button loginButton =findViewById(R.id.go_to_login);
+        final Button gdprButton =findViewById(R.id.gdpr_btn);
         final ProgressBar loadingProgressBar = findViewById(R.id.loading_signup);
+
+        gdprButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent mainActivityIntent = new Intent(getApplicationContext(), GDPRActivity.class);
+                startActivity(mainActivityIntent);
+            }
+        });
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -41,4 +41,6 @@
     <string name="broadcast_current_timer">timer_broadcast</string>
     <string name="broadcast_current_song">song_broadcast</string>
     <string name="broadcast_play_pause">isplaying_broadcast</string>
+
+    <string name="gdpr">We use your name and first name to fill your personal profile so more people can know about you and to associate it with music you created. It will then be showed in every user\'s player.</string>
 </resources>
